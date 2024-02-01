@@ -7,13 +7,14 @@ import Model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class TaskManager {
-    HashMap<Integer, Task> tasks;
-    HashMap<Integer, Epic> epics;
-    HashMap<Integer, SubTask> subTasks;
-    private int seq = 1;
+    private HashMap<Integer, Task> tasks = new HashMap<>();
+    private HashMap<Integer, Epic> epics = new HashMap<>();
+    private HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    private int seq = 0;
 
     private int generateId() {
         return seq++;
@@ -37,6 +38,7 @@ public class TaskManager {
 
     public SubTask createSubTask(SubTask subTask) {
         subTask.setId(generateId());
+        subTask.getEpic().setSubTasks(subTask);
         subTasks.put(subTask.getId(), subTask);
         return subTask; // Не уверен на счет правоты, при иницилизации подзадачи она запрашивает эпик, в самом конструкторе идет привязка к эпику
     }
@@ -44,7 +46,9 @@ public class TaskManager {
     public void updateEpic(Epic epic) { //Обновление эпика
         Epic saved = epics.get(epic.getId());
         epic.setStatus(saved.getStatus());
-        epic.setSubTasks(saved.getSubTasks());
+        for (SubTask subtask : saved.getSubTasks()) {
+            epic.setSubTasks(subtask);
+        }
         epics.put(epic.getId(), calculatingTheStatusEpic(epic));
     }
 
@@ -58,27 +62,39 @@ public class TaskManager {
     }
 
     public Task getTask(int id) {
-        return tasks.get(id);
+        if (!check(tasks.get(id))) {
+            return null;
+        } else {
+            return tasks.get(id);
+        }
     }
 
     public SubTask getSubTask(int id) {
-        return subTasks.get(id);
+        if (!check(subTasks.get(id))) {
+            return null;
+        } else {
+            return subTasks.get(id);
+        }
     }
 
     public Epic getEpic(int id) {
-        return epics.get(id);
+        if (!check(epics.get(id))) {
+            return null;
+        } else {
+            return epics.get(id);
+        }
     }
 
-    public ArrayList<Task> allGetTasks() {
-        return (ArrayList<Task>) tasks.values();
+    public void allGetTasks() {
+        System.out.println(tasks.values());
     }
 
-    public ArrayList<Epic> allGetEpics() {
-        return (ArrayList<Epic>) epics.values();
+    public void allGetEpics() {
+        System.out.println(epics.values());
     }
 
-    public ArrayList<SubTask> allGetSubTasks() {
-        return (ArrayList<SubTask>) subTasks.values();
+    public void allGetSubTasks() {
+        System.out.println(subTasks.values());
     }
 
     public void removeAllTasks() {

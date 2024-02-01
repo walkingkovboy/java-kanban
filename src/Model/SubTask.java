@@ -13,6 +13,11 @@ public class SubTask extends Task {
     }
 
     public Epic getEpic() {
-        return epic;
+        if (epic == null) {
+            return null;
+        } else {
+            return epic;
+        }
+
     }
 }
