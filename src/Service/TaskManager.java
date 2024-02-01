@@ -7,12 +7,13 @@ import Model.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class TaskManager {
     HashMap<Integer, Task> tasks;
     HashMap<Integer, Epic> epics;
     HashMap<Integer, SubTask> subTasks;
-    int seq = 0;
+    private int seq = 1;
 
     private int generateId() {
         return seq++;
@@ -37,7 +38,7 @@ public class TaskManager {
     public SubTask createSubTask(SubTask subTask) {
         subTask.setId(generateId());
         subTasks.put(subTask.getId(), subTask);
-        return subTask;
+        return subTask; // Не уверен на счет правоты, при иницилизации подзадачи она запрашивает эпик, в самом конструкторе идет привязка к эпику
     }
 
     public void updateEpic(Epic epic) { //Обновление эпика
@@ -97,24 +98,30 @@ public class TaskManager {
         for (SubTask subTask : subTasks.values()) {
             subTask.setEpic(null);
         }
-        subTasks.clear();
+        epics.clear(); //Перепутал хэщмапы похоже
     }
 
     public void removeTask(int id) {
-        tasks.remove(id);
+        if (check(tasks.get(id))) {
+            tasks.remove(id);
+        }
     }
 
     public void removeSubTask(int id) {
-        epics.get(subTasks.get(id).getEpic().getId()).getSubTasks().remove(subTasks.get(id));
-        epics.put(subTasks.get(id).getEpic().getId(), calculatingTheStatusEpic(epics.get(subTasks.get(id).getEpic().getId())));
-        subTasks.remove(id);
+        if (check(subTasks.get(id))) {
+            epics.get(subTasks.get(id).getEpic().getId()).getSubTasks().remove(subTasks.get(id));
+            epics.put(subTasks.get(id).getEpic().getId(), calculatingTheStatusEpic(epics.get(subTasks.get(id).getEpic().getId())));
+            subTasks.remove(id);
+        }
     }
 
     public void removeEpic(int id) {
-        for (SubTask subTask : epics.get(id).getSubTasks()) {
-            subTask.setEpic(null);
+        if (check(epics.get(id))) {
+            for (SubTask subTask : epics.get(id).getSubTasks()) {
+                subTask.setEpic(null);
+            }
+            epics.remove(id);
         }
-        epics.remove(id);
     }
 
     public ArrayList<SubTask> getSubTaskEpic(Epic epic) {
@@ -146,6 +153,15 @@ public class TaskManager {
                 epic.setStatus(Status.IN_PROGRESS);
                 return epic;
             }
+        }
+    }
+
+    private boolean check(Object object) {
+        if (object != null) {
+            return true;
+        } else {
+            System.out.println("Айди не найден");
+            return false;
         }
     }
 }

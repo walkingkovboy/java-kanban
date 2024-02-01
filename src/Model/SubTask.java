@@ -1,7 +1,7 @@
 package Model;
 
 public class SubTask extends Task {
-    Epic epic;
+    private Epic epic; //исправил
 
     public SubTask(Task task, Epic epic) {
         super(task.getTitle(), task.getDescription(), task.getStatus());

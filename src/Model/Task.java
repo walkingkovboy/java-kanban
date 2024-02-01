@@ -1,5 +1,7 @@
 package Model;
 
+import java.util.Objects;
+
 public class Task {
     private String title;
     private String description;
@@ -50,7 +52,7 @@ public class Task {
         return "Task{" +
                 "title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", theUniqueIdentificationNumber=" + id +
+                ", id= '" + id +
                 ", status='" + status + '\'' +
                 '}';
     }
