@@ -14,7 +14,6 @@ public class Task {
         this.status = status;
     }
 
-
     public String getTitle() {
         return title;
     }

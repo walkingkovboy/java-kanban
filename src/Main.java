@@ -3,15 +3,42 @@ import Model.Status;
 import Model.SubTask;
 import Model.Task;
 import Service.TaskManager;
+import Service.inMemoryTaskManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Main {
 
     public static void main(String[] args) {
+        inMemoryTaskManager tm= new inMemoryTaskManager();
+        Epic epic = tm.createEpic(new Epic(new Task("Эпик", "Первый эпик", Status.NEW), new ArrayList<SubTask>()));//СОздали Эпик
+        SubTask subTask = tm.createSubTask(new SubTask(new Task("Подзадача", "Первая подзадача", Status.NEW), epic));//Создали подзадачу и связали сразу с эпиком
+        SubTask subTask1 = tm.createSubTask(new SubTask(new Task("Подзадача", "Вторая подзадача", Status.NEW), epic));
+        SubTask subTask2 = tm.createSubTask(new SubTask(new Task("Подзадача", "Третья подзадача", Status.NEW), epic));
+        Task task =tm.createTask(new Task("Обычная задача","Четвертая",Status.NEW));
+        //Начинаем тестировать историю обращаясь к разным задачам
+        tm.getEpic(0);
+        tm.getSubTask(1);
+        tm.getSubTask(2);
+        tm.getSubTask(3);
+        tm.getTask(4);
+        tm.getEpic(0);
+        //Вызвали 6 раз, посмотрим историю
+        System.out.println(tm.historyManager.getAll());
+        //Добавим еще 6 и посмотрим
+        tm.getEpic(0);
+        tm.getSubTask(1);
+        tm.getSubTask(2);
+        tm.getSubTask(3);
+        tm.getTask(4);
+        tm.getEpic(0);
+        //Должна быть задача с айди 2
+        System.out.println(tm.historyManager.getAll());
 
-        TaskManager tm = new TaskManager();
+    }
+
+    public static void sprint4() {
+        TaskManager tm = new inMemoryTaskManager();
         Epic epic = tm.createEpic(new Epic(new Task("Эпик", "Первый эпик", Status.NEW), new ArrayList<SubTask>()));//СОздали Эпик
         SubTask subTask = tm.createSubTask(new SubTask(new Task("Подзадача", "Первая подзадача", Status.NEW), epic));//Создали подзадачу и связали сразу с эпиком
         SubTask subTask1 = tm.createSubTask(new SubTask(new Task("Подзадача", "Вторая подзадача", Status.NEW), epic));
@@ -52,6 +79,5 @@ public class Main {
         System.out.println(tm.getEpic(epic1.getId()));
         tm.removeEpic(epic1.getId());
         System.out.println(tm.getSubTask(subTask4.getId()).getEpic() + " Должно быть NULL");
-
     }
 }
