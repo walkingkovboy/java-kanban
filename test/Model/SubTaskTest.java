@@ -17,19 +17,22 @@ class SubTaskTest {
     @BeforeEach
     public void setUp() {
         taskManager = new inMemoryTaskManager();
-        epic = taskManager.createEpic(new Epic(new Task("NameEpic", "EpicDescription", Status.NEW), new ArrayList<SubTask>()));
-        subTask = taskManager.createSubTask(new SubTask(new Task("SubTask1", "SubTask1Description", Status.NEW), epic));
+        epic = new Epic(new Task("NameEpic", "EpicDescription", Status.NEW));
+        SubTask subTask1 = new SubTask(new Task("SubTask1", "Subtask1Description", Status.NEW));
+        epic = taskManager.createEpic(epic);
+        subTask = taskManager.createSubTask(subTask1, epic.getId());
     }
 
     @Test
     @DisplayName("Эпики должны совпасть")
-    public void subTaskGetEpic(){
-        assertEquals(subTask.getEpic(),epic);
+    public void subTaskGetEpic() {
+        assertEquals(subTask.getEpic(), epic);
     }
+
     @Test
     @DisplayName("Удалим Эпик и должны получить NULL")
-    public void subTaskDeleteEpic(){
+    public void subTaskDeleteEpic() {
         taskManager.removeEpic(epic.getId());
-        assertEquals(null ,taskManager.getSubTask(subTask.getId()).getEpic());
+        assertEquals(null, taskManager.getSubTask(subTask.getId()).getEpic());
     }
 }

@@ -13,10 +13,10 @@ public class inMemoryTaskManager implements TaskManager {
     public inMemoryTaskManager() {
         this.tasks = new HashMap<>();
         this.epics = new HashMap<>();
-       this.subTasks = new HashMap<>();
-       this.historyManager=Manager.getDefaultHistory();
-
+        this.subTasks = new HashMap<>();
+        this.historyManager = Manager.getDefaultHistory();
     }
+
     public HistoryManager historyManager;
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, Epic> epics;
@@ -42,12 +42,13 @@ public class inMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask createSubTask(SubTask subTask) {
+    public SubTask createSubTask(SubTask subTask, int idEpic) {
         subTask.setId(generateId());
-        subTask.getEpic().setSubTasks(subTask);
+        subTask.setEpic(epics.get(idEpic));
+        epics.get(idEpic).setSubTasks(subTask);
         subTasks.put(subTask.getId(), subTask);
         subTask.setEpic(calculatingTheStatusEpic(subTask.getEpic()));
-        return subTask; // Не уверен на счет правоты, при иницилизации подзадачи она запрашивает эпик, в самом конструкторе идет привязка к эпику
+        return subTask;
     }
 
     @Override
@@ -103,17 +104,17 @@ public class inMemoryTaskManager implements TaskManager {
 
     @Override
     public void allGetTasks() {
-        System.out.println(tasks.values());
+        new ArrayList<>(tasks.values());
     }
 
     @Override
     public void allGetEpics() {
-        System.out.println(epics.values());
+        new ArrayList<>(epics.values());
     }
 
     @Override
     public void allGetSubTasks() {
-        System.out.println(subTasks.values());
+        new ArrayList<>(subTasks.values());
     }
 
     @Override
@@ -170,6 +171,11 @@ public class inMemoryTaskManager implements TaskManager {
         return (ArrayList<SubTask>) epic.getSubTasks();
     }
 
+    @Override
+    public List<Task> getAll() {
+        return historyManager.getAll();
+    }
+
     private Epic calculatingTheStatusEpic(Epic epic) {
         if (epic.getSubTasks() == null) {
             epic.setStatus(Status.NEW);
@@ -202,7 +208,6 @@ public class inMemoryTaskManager implements TaskManager {
         if (object != null) {
             return true;
         } else {
-            System.out.println("Айди не найден");
             return false;
         }
     }

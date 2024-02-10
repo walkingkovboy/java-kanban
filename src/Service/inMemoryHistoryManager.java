@@ -1,10 +1,13 @@
 package Service;
+
 import Model.Task;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class inMemoryHistoryManager implements HistoryManager {
-    List<Task> viewhitory = new ArrayList<>(10);
+    private List<Task> viewhitory = new ArrayList<>(10);
+
     @Override
     public void addTaskHistory(Task task) {
         if (task == null) {
@@ -18,6 +21,6 @@ public class inMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getAll() {
-        return viewhitory;
+        return List.copyOf(viewhitory);
     }
 }

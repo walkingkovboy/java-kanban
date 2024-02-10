@@ -3,9 +3,8 @@ package Model;
 public class SubTask extends Task {
     private Epic epic; //исправил
 
-    public SubTask(Task task, Epic epic) {
+    public SubTask(Task task) {
         super(task.getTitle(), task.getDescription(), task.getStatus());
-        this.epic = epic;
     }
 
     public void setEpic(Epic epic) {

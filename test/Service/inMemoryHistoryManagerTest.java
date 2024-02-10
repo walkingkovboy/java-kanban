@@ -15,26 +15,30 @@ import static org.junit.jupiter.api.Assertions.*;
 class inMemoryHistoryManagerTest extends ManagerTest {
     Epic epic;
     SubTask subTask;
-    inMemoryTaskManager tm = new inMemoryTaskManager();
+    TaskManager tm = Manager.getDefaultTaskManager();
+
     @BeforeEach
     public void setUp() {
-
-        epic = tm.createEpic(new Epic(new Task("Эпик", "Первый эпик", Status.NEW), new ArrayList<SubTask>()));
-        subTask = tm.createSubTask(new SubTask(new Task("Подзадача", "Первая подзадача", Status.NEW), epic));
+        epic = new Epic(new Task("NameEpic", "EpicDescription", Status.NEW));
+        subTask = new SubTask(new Task("SubTask1", "Subtask1Description", Status.NEW));
+        epic = tm.createEpic(epic);
+        subTask = tm.createSubTask(subTask, 0);
     }
+
     @Test
     @DisplayName("Проверка увелечения размера истории, при обращении к задачам (5 вызовов)")
-    void getSubTaskAndGetEpicForSaveHistory(){
+    void getSubTaskAndGetEpicForSaveHistory() {
         tm.getEpic(0);
         tm.getSubTask(1);
         tm.getSubTask(1);
         tm.getSubTask(1);
         tm.getEpic(0);
-        assertEquals(5, tm.historyManager.getAll().size());
+        assertEquals(5, tm.getAll().size());
     }
+
     @Test
     @DisplayName("Проверка увелечения размера истории, при обращении к задачам (10 вызовов)")
-    void getSubTaskAndGetEpicForSaveHistoryFull(){
+    void getSubTaskAndGetEpicForSaveHistoryFull() {
         tm.getEpic(0);
         tm.getSubTask(1);
         tm.getSubTask(1);
@@ -45,11 +49,12 @@ class inMemoryHistoryManagerTest extends ManagerTest {
         tm.getSubTask(1);
         tm.getSubTask(1);
         tm.getEpic(0);
-        assertEquals(10, tm.historyManager.getAll().size());
+        assertEquals(10, tm.getAll().size());
     }
+
     @Test
     @DisplayName("Проверка сохранения размера истории, при обращении к задачам (12 вызовов)")
-    void getSubTaskAndGetEpicForSaveHistoryAfterTwelveСalls(){
+    void getSubTaskAndGetEpicForSaveHistoryAfterTwelveСalls() {
         tm.getEpic(0);
         tm.getSubTask(1);
         tm.getSubTask(1);
@@ -62,11 +67,12 @@ class inMemoryHistoryManagerTest extends ManagerTest {
         tm.getEpic(0);
         tm.getSubTask(1);
         tm.getEpic(0);
-        assertEquals(10, tm.historyManager.getAll().size());
+        assertEquals(10, tm.getAll().size());
     }
+
     @Test
     @DisplayName("Сравним первый элемент в истории после 12 вызовов")
-    void compareTheFirstElementInTheHistoryAfterCalls(){
+    void compareTheFirstElementInTheHistoryAfterCalls() {
         tm.getEpic(0);
         tm.getSubTask(1);
         tm.getSubTask(1);
@@ -79,7 +85,7 @@ class inMemoryHistoryManagerTest extends ManagerTest {
         tm.getEpic(0);
         tm.getSubTask(1);
         tm.getEpic(0);
-        assertEquals(tm.historyManager.getAll().get(0), tm.getSubTask(1));
+        assertEquals(tm.getAll().get(0), tm.getSubTask(1));
     }
 
 }
