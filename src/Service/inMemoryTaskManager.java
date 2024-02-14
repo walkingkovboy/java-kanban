@@ -17,7 +17,7 @@ public class inMemoryTaskManager implements TaskManager {
         this.historyManager = Manager.getDefaultHistory();
     }
 
-    public HistoryManager historyManager;
+    private HistoryManager historyManager;
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, Epic> epics;
     private HashMap<Integer, SubTask> subTasks;
@@ -37,7 +37,7 @@ public class inMemoryTaskManager implements TaskManager {
     @Override
     public Epic createEpic(Epic epic) {
         epic.setId(generateId());
-        epics.put(epic.getId(), epic);
+        epics.put(epic.getId(),calculatingTheStatusEpic(epic));
         return epic;
     }
 
@@ -103,17 +103,17 @@ public class inMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void allGetTasks() {
+    public void getTasksAll() {
         new ArrayList<>(tasks.values());
     }
 
     @Override
-    public void allGetEpics() {
+    public void getEpicsAll() {
         new ArrayList<>(epics.values());
     }
 
     @Override
-    public void allGetSubTasks() {
+    public void getSubTasksAll() {
         new ArrayList<>(subTasks.values());
     }
 
@@ -168,12 +168,12 @@ public class inMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<SubTask> getSubTaskEpic(Epic epic) {
-        return (ArrayList<SubTask>) epic.getSubTasks();
+        return epic.getSubTasks();
     }
 
     @Override
     public List<Task> getAll() {
-        return historyManager.getAll();
+        return historyManager.getHistory();
     }
 
     private Epic calculatingTheStatusEpic(Epic epic) {
@@ -205,10 +205,7 @@ public class inMemoryTaskManager implements TaskManager {
     }
 
     private boolean check(Object object) {
-        if (object != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return object != null;
     }
+
 }

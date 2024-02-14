@@ -3,8 +3,8 @@ package Model;
 public class SubTask extends Task {
     private Epic epic; //исправил
 
-    public SubTask(Task task) {
-        super(task.getTitle(), task.getDescription(), task.getStatus());
+    public SubTask(String name, String description, Status status) {
+        super(name, description, status);
     }
 
     public void setEpic(Epic epic) {
@@ -12,11 +12,6 @@ public class SubTask extends Task {
     }
 
     public Epic getEpic() {
-        if (epic == null) {
-            return null;
-        } else {
             return epic;
-        }
-
     }
 }

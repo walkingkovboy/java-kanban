@@ -17,8 +17,8 @@ class SubTaskTest {
     @BeforeEach
     public void setUp() {
         taskManager = new inMemoryTaskManager();
-        epic = new Epic(new Task("NameEpic", "EpicDescription", Status.NEW));
-        SubTask subTask1 = new SubTask(new Task("SubTask1", "Subtask1Description", Status.NEW));
+        epic = new Epic("NameEpic", "EpicDescription");
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.NEW);
         epic = taskManager.createEpic(epic);
         subTask = taskManager.createSubTask(subTask1, epic.getId());
     }

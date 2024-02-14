@@ -17,7 +17,7 @@ class EpicTest {
     @BeforeEach
     public void setUp() {
         taskManager = new inMemoryTaskManager();
-        epic = new Epic(new Task("NameEpic", "EpicDescription", Status.NEW));
+        epic = new Epic("NameEpic", "EpicDescription");
         epic = taskManager.createEpic(epic);
     }
 
@@ -30,8 +30,8 @@ class EpicTest {
     @DisplayName("Статус должен быть NEW")
     @Test
     public void epicStatusNewWhenAllSubTasksNew() {
-        SubTask subTask1 = new SubTask(new Task("SubTask1", "Subtask1Description", Status.NEW));
-        SubTask subTask2 = new SubTask(new Task("SubTask2", "Subtask2Description", Status.NEW));
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.NEW);
+        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.NEW);
         taskManager.createSubTask(subTask1, epic.getId());
         taskManager.createSubTask(subTask2, epic.getId());
         assertEquals(Status.NEW, epic.getStatus());
@@ -40,8 +40,8 @@ class EpicTest {
     @Test
     @DisplayName("Статус должен быть DONE")
     public void epicStatusDoneWhenAllSubTasksDone() {
-        SubTask subTask1 = new SubTask(new Task("SubTask1", "Subtask1Description", Status.DONE));
-        SubTask subTask2 = new SubTask(new Task("SubTask2", "Subtask2Description", Status.DONE));
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.DONE);
+        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.DONE);
         taskManager.createSubTask(subTask1, epic.getId());
         taskManager.createSubTask(subTask2, epic.getId());
         assertEquals(Status.DONE, epic.getStatus());
@@ -50,8 +50,8 @@ class EpicTest {
     @Test
     @DisplayName("Статус должен быть IN_PROGRESS")
     public void epicStatusInProgressWhenSomeSubTasksDoneOrNew() {
-        SubTask subTask1 = new SubTask(new Task("SubTask1", "Subtask1Description", Status.DONE));
-        SubTask subTask2 = new SubTask(new Task("SubTask2", "Subtask2Description", Status.IN_PROGRESS));
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.DONE);
+        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.IN_PROGRESS);
         taskManager.createSubTask(subTask1, epic.getId());
         taskManager.createSubTask(subTask2, epic.getId());
         assertEquals(Status.IN_PROGRESS, epic.getStatus());
@@ -60,8 +60,8 @@ class EpicTest {
     @Test
     @DisplayName("Статус должен быть IN_PROGRESS")
     public void epicStatusInProgressWhenAllSubTasksInProgress() {
-        SubTask subTask1 = new SubTask(new Task("SubTask1", "Subtask1Description", Status.IN_PROGRESS));
-        SubTask subTask2 = new SubTask(new Task("SubTask2", "Subtask2Description", Status.IN_PROGRESS));
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.IN_PROGRESS);
+        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.IN_PROGRESS);
         taskManager.createSubTask(subTask1, epic.getId());
         taskManager.createSubTask(subTask2, epic.getId());
         assertEquals(Status.IN_PROGRESS, epic.getStatus());

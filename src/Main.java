@@ -2,25 +2,20 @@ import Model.Epic;
 import Model.Status;
 import Model.SubTask;
 import Model.Task;
-import Service.HistoryManager;
 import Service.Manager;
 import Service.TaskManager;
-import Service.inMemoryTaskManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
         sprint4(); //Изменил проверку
-        sprint5();
+        //sprint5();
     }
     public static void sprint4() {
         TaskManager tm = Manager.getDefaultTaskManager();
-        Epic epic = new Epic(new Task("Эпик", "Первый эпик", Status.NEW));
-        SubTask subTask = new SubTask(new Task("Подзадача", "Первая подзадача", Status.NEW));
-        SubTask subTask1 = new SubTask(new Task("Подзадача", "Вторая подзадача", Status.NEW));
+        Epic epic = new Epic("Эпик", "Первый эпик");
+        SubTask subTask = new SubTask("Подзадача", "Первая подзадача", Status.NEW);
+        SubTask subTask1 = new SubTask("Подзадача", "Вторая подзадача", Status.NEW);
         epic = tm.createEpic(epic);
         subTask = tm.createSubTask(subTask, epic.getId());
         subTask1 = tm.createSubTask(subTask1, epic.getId());
@@ -37,13 +32,13 @@ public class Main {
         //Получение эпика и подзадач, еще раз глянуть ТЗ, пришлось методы получения изменить, написано просто их распечатать
         System.out.println(tm.getSubTask(subTask1.getId()) + "Подзадача subTask1");
         System.out.println();
-        tm.allGetSubTasks();
+        tm.getSubTasksAll();
         System.out.println();
-        System.out.println(tm.getEpic(epic.getId()) + "Наш эпик");
+        System.out.println(tm.getEpic(epic.getId()) + " Наш эпик");
         System.out.println();
         //попробуем удалить одну подзадачу и посмотреть сколько у эпика подзадач
         tm.removeSubTask(subTask.getId());
-        System.out.println(tm.getSubTaskEpic(epic).size() + " Колиечство подзадач");
+        System.out.println(tm.getSubTaskEpic(epic).size() + " Количeство подзадач");
         System.out.println();
         //Попробуем удалить все подзадачи и посмотрим статус эпика
         tm.removeAllSubTasks();
@@ -51,8 +46,8 @@ public class Main {
         System.out.println();
 
         //Попробуем теперь удалить эпик и посмотрим, что будет с подзадачами
-        Epic epic1 = new Epic(new Task("Эпик", "Второй эпик", Status.NEW));
-        SubTask subTask2 = new SubTask(new Task("Подзадача", "Третья подзадача", Status.NEW));
+        Epic epic1 = new Epic("Эпик", "Второй эпик");
+        SubTask subTask2 = new SubTask("Подзадача", "Третья подзадача", Status.NEW);
         epic1 = tm.createEpic(epic1);
         subTask2 = tm.createSubTask(subTask2, epic1.getId());
         System.out.println(tm.getEpic(epic1.getId()));
@@ -64,9 +59,9 @@ public class Main {
     public static void sprint5() {
         TaskManager tm = Manager.getDefaultTaskManager();
         //HistoryManager th = Manager.getDefaultHistory();
-        Epic epic = new Epic(new Task("Эпик", "Первый эпик", Status.NEW));
-        SubTask subTask = new SubTask(new Task("Подзадача", "Первая подзадача", Status.NEW));
-        SubTask subTask1 = new SubTask(new Task("Подзадача", "Вторая подзадача", Status.NEW));
+        Epic epic = new Epic("Эпик", "Первый эпик");
+        SubTask subTask = new SubTask("Подзадача", "Первая подзадача", Status.NEW);
+        SubTask subTask1 = new SubTask("Подзадача", "Вторая подзадача", Status.NEW);
         Task task = new Task("Обычная задача", "Треться", Status.NEW);
         epic = tm.createEpic(epic);
         subTask = tm.createSubTask(subTask, 0);

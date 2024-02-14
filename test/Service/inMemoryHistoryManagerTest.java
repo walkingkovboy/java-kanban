@@ -19,8 +19,8 @@ class inMemoryHistoryManagerTest extends ManagerTest {
 
     @BeforeEach
     public void setUp() {
-        epic = new Epic(new Task("NameEpic", "EpicDescription", Status.NEW));
-        subTask = new SubTask(new Task("SubTask1", "Subtask1Description", Status.NEW));
+        epic = new Epic("NameEpic", "EpicDescription");
+        subTask = new SubTask("SubTask1", "Subtask1Description", Status.NEW);
         epic = tm.createEpic(epic);
         subTask = tm.createSubTask(subTask, 0);
     }
