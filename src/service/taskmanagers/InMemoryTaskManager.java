@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class inMemoryTaskManager implements TaskManager {
-    public inMemoryTaskManager() {
+public class InMemoryTaskManager implements TaskManager {
+    public InMemoryTaskManager() {
         this.tasks = new HashMap<>();
         this.epics = new HashMap<>();
         this.subTasks = new HashMap<>();

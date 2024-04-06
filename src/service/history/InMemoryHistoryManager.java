@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class inMemoryHistoryManager implements HistoryManager {
+public class InMemoryHistoryManager implements HistoryManager {
     private HashMap<Integer, Node<Task>> mapForRemoving = new HashMap<>();
     private Node<Task> head;
     private Node<Task> tail;

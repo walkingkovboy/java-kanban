@@ -1,6 +1,6 @@
 package model;
 
-import service.taskmanagers.inMemoryTaskManager;
+import service.taskmanagers.InMemoryTaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EpicTest {
-    private inMemoryTaskManager taskManager;
+    private InMemoryTaskManager taskManager;
     private Epic epic;
 
     @BeforeEach
     public void setUp() {
-        taskManager = new inMemoryTaskManager();
+        taskManager = new InMemoryTaskManager();
         epic = new Epic("NameEpic", "EpicDescription");
         epic = taskManager.createEpic(epic);
     }
