@@ -1,8 +1,7 @@
-package Service.history;
+package service.history;
 
-import Model.Task;
-import Service.history.HistoryManager;
-import Service.linkedList.Node;
+import model.Task;
+import service.linkedList.Node;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

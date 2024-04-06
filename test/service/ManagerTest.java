@@ -1,9 +1,9 @@
-package Service;
+package service;
 
-import Model.Status;
-import Model.Task;
-import Service.taskmanagers.Manager;
-import Service.taskmanagers.TaskManager;
+import model.Status;
+import model.Task;
+import service.taskmanagers.Manager;
+import service.taskmanagers.TaskManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

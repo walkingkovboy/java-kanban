@@ -1,6 +1,6 @@
-package Service.history;
+package service.history;
 
-import Model.Task;
+import model.Task;
 
 import java.util.List;
 

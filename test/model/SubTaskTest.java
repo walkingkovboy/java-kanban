@@ -1,6 +1,6 @@
-package Model;
+package model;
 
-import Service.taskmanagers.inMemoryTaskManager;
+import service.taskmanagers.inMemoryTaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

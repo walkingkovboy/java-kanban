@@ -1,17 +1,13 @@
-package Service;
+package service;
 
-import Model.Epic;
-import Model.Status;
-import Model.SubTask;
-import Model.Task;
-import Service.history.inMemoryHistoryManager;
-import Service.taskmanagers.Manager;
-import Service.taskmanagers.TaskManager;
+import model.Epic;
+import model.Status;
+import model.SubTask;
+import model.Task;
+import service.history.inMemoryHistoryManager;
+import service.taskmanagers.Manager;
+import service.taskmanagers.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class inMemoryHistoryManagerTest extends HistoryManagerTest<inMemoryHistoryManager>  {
     Epic epic;

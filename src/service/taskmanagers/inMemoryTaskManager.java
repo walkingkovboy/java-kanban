@@ -1,10 +1,10 @@
-package Service.taskmanagers;
+package service.taskmanagers;
 
-import Model.Epic;
-import Model.Status;
-import Model.SubTask;
-import Model.Task;
-import Service.history.HistoryManager;
+import model.Epic;
+import model.Status;
+import model.SubTask;
+import model.Task;
+import service.history.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

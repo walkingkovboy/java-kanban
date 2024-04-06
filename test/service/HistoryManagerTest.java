@@ -1,7 +1,7 @@
-package Service;
+package service;
 
-import Model.Task;
-import Service.history.HistoryManager;
+import model.Task;
+import service.history.HistoryManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

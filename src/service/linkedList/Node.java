@@ -1,4 +1,4 @@
-package Service.linkedList;
+package service.linkedList;
 
 public class Node<T> {
     private T data;
