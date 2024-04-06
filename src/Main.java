@@ -12,6 +12,7 @@ public class Main {
         //sprint5();
         sprint6();
     }
+
     public static void sprint4() {
         TaskManager tm = Manager.getDefaultTaskManager();
         Epic epic = new Epic("Эпик", "Первый эпик");
@@ -67,7 +68,7 @@ public class Main {
         epic = tm.createEpic(epic);
         subTask = tm.createSubTask(subTask, 0);
         subTask1 = tm.createSubTask(subTask1, 0);
-        task=tm.createTask(task);
+        task = tm.createTask(task);
         tm.getEpic(0);
         tm.getSubTask(1);
         tm.getSubTask(2);
@@ -87,7 +88,8 @@ public class Main {
         //Должна быть задача с айди 2
         System.out.println(tm.getHistoryAll());
     }
-    public static void sprint6(){
+
+    public static void sprint6() {
         Task task = new Task("Обычная задача", "Первая", Status.NEW);
         Task task1 = new Task("Обычная задача", "Вторая", Status.NEW);
         SubTask subTask = new SubTask("Подзадача", "Первая подзадача", Status.NEW);
@@ -102,8 +104,8 @@ public class Main {
         subTask = tm.createSubTask(subTask, 0);
         subTask1 = tm.createSubTask(subTask1, 0);
         subTask2 = tm.createSubTask(subTask2, 0);
-        task=tm.createTask(task);
-        task1=tm.createTask(task1);
+        task = tm.createTask(task);
+        task1 = tm.createTask(task1);
         tm.getTask(task.getId());
         tm.getTask(task.getId());
         tm.getTask(task.getId());
@@ -121,7 +123,7 @@ public class Main {
         tm.getSubTask(subTask1.getId());
         tm.getSubTask(subTask.getId());
         System.out.println(tm.getHistoryAll()); //Нет повторений
-        System.out.println(tm.getHistoryAll().size()+" Размер до удаление");
+        System.out.println(tm.getHistoryAll().size() + " Размер до удаление");
         tm.removeTask(task.getId());
         tm.removeTask(task1.getId());
         System.out.println(tm.getHistoryAll().size());
