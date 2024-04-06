@@ -2,14 +2,15 @@ import Model.Epic;
 import Model.Status;
 import Model.SubTask;
 import Model.Task;
-import Service.Manager;
-import Service.TaskManager;
+import Service.taskmanagers.Manager;
+import Service.taskmanagers.TaskManager;
 
 public class Main {
 
     public static void main(String[] args) {
-        sprint4(); //Изменил проверку
+        //sprint4(); //Изменил проверку
         //sprint5();
+        sprint6();
     }
     public static void sprint4() {
         TaskManager tm = Manager.getDefaultTaskManager();
@@ -74,8 +75,8 @@ public class Main {
         tm.getTask(3);
         tm.getEpic(0);
         //Вызвали 6 раз, посмотрим историю
-        System.out.println(tm.getAll());
-        System.out.println(tm.getAll().size());
+        System.out.println(tm.getHistoryAll());
+        System.out.println(tm.getHistoryAll().size());
         //Добавим еще 6 и посмотрим
         tm.getEpic(0);
         tm.getSubTask(1);
@@ -84,7 +85,53 @@ public class Main {
         tm.getTask(3);
         tm.getEpic(0);
         //Должна быть задача с айди 2
-        System.out.println(tm.getAll());
+        System.out.println(tm.getHistoryAll());
+    }
+    public static void sprint6(){
+        Task task = new Task("Обычная задача", "Первая", Status.NEW);
+        Task task1 = new Task("Обычная задача", "Вторая", Status.NEW);
+        SubTask subTask = new SubTask("Подзадача", "Первая подзадача", Status.NEW);
+        SubTask subTask1 = new SubTask("Подзадача", "Вторая подзадача", Status.NEW);
+        SubTask subTask2 = new SubTask("Подзадача", "Третья подзадача", Status.NEW);
+        Epic epic = new Epic("Эпик", "Первый эпик");
+        Epic epic1 = new Epic("Эпик", "Второй эпик");
+        TaskManager tm = Manager.getDefaultTaskManager();
+        System.out.println(tm.getHistoryAll());
+        epic = tm.createEpic(epic);
+        epic1 = tm.createEpic(epic1);
+        subTask = tm.createSubTask(subTask, 0);
+        subTask1 = tm.createSubTask(subTask1, 0);
+        subTask2 = tm.createSubTask(subTask2, 0);
+        task=tm.createTask(task);
+        task1=tm.createTask(task1);
+        tm.getTask(task.getId());
+        tm.getTask(task.getId());
+        tm.getTask(task.getId());
+        System.out.println(tm.getHistoryAll()); //Одна задача, при вызове get первой задачи
+        tm.getEpic(epic.getId());
+        tm.getEpic(epic.getId());
+        tm.getEpic(epic1.getId());
+        tm.getEpic(epic1.getId());
+        tm.getEpic(epic.getId());
+        tm.getTask(task1.getId());
+        tm.getSubTask(subTask1.getId());
+        tm.getSubTask(subTask1.getId());
+        tm.getSubTask(subTask2.getId());
+        tm.getSubTask(subTask.getId());
+        tm.getSubTask(subTask1.getId());
+        tm.getSubTask(subTask.getId());
+        System.out.println(tm.getHistoryAll()); //Нет повторений
+        System.out.println(tm.getHistoryAll().size()+" Размер до удаление");
+        tm.removeTask(task.getId());
+        tm.removeTask(task1.getId());
+        System.out.println(tm.getHistoryAll().size());
+        tm.removeSubTask(subTask1.getId());
+        tm.removeSubTask(subTask2.getId());
+        tm.removeSubTask(subTask.getId());
+        System.out.println(tm.getHistoryAll().size());
+        tm.removeEpic(epic.getId());
+        tm.removeEpic(epic1.getId());
+        System.out.println(tm.getHistoryAll().size());
     }
 }
 

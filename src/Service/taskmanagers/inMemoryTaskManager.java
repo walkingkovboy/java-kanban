@@ -1,9 +1,10 @@
-package Service;
+package Service.taskmanagers;
 
 import Model.Epic;
 import Model.Status;
 import Model.SubTask;
 import Model.Task;
+import Service.history.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,6 +144,7 @@ public class inMemoryTaskManager implements TaskManager {
     @Override
     public void removeTask(int id) {
         if (check(tasks.get(id))) {
+            historyManager.remove(tasks.get(id).getId());
             tasks.remove(id);
         }
     }
@@ -152,6 +154,7 @@ public class inMemoryTaskManager implements TaskManager {
         if (check(subTasks.get(id))) {
             epics.get(subTasks.get(id).getEpic().getId()).getSubTasks().remove(subTasks.get(id));
             epics.put(subTasks.get(id).getEpic().getId(), calculatingTheStatusEpic(epics.get(subTasks.get(id).getEpic().getId())));
+            historyManager.remove(subTasks.get(id).getId());
             subTasks.remove(id);
         }
     }
@@ -162,6 +165,7 @@ public class inMemoryTaskManager implements TaskManager {
             for (SubTask subTask : epics.get(id).getSubTasks()) {
                 subTask.setEpic(null);
             }
+            historyManager.remove(epics.get(id).getId());
             epics.remove(id);
         }
     }
@@ -172,7 +176,7 @@ public class inMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getAll() {
+    public List<Task> getHistoryAll() {
         return historyManager.getHistory();
     }
 
