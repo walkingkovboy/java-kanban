@@ -13,7 +13,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node<Task> tail;
 
     @Override
-    public void addTaskHistory(Task task) {
+    public void add(Task task) {
         if (task == null) {
             return;
         }

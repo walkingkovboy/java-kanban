@@ -78,7 +78,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!check(tasks.get(id))) {
             return null;
         } else {
-            historyManager.addTaskHistory(tasks.get(id));
+            historyManager.add(tasks.get(id));
             return tasks.get(id);
         }
     }
@@ -88,7 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!check(subTasks.get(id))) {
             return null;
         } else {
-            historyManager.addTaskHistory(subTasks.get(id));
+            historyManager.add(subTasks.get(id));
             return subTasks.get(id);
         }
     }
@@ -98,7 +98,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!check(epics.get(id))) {
             return null;
         } else {
-            historyManager.addTaskHistory(epics.get(id));
+            historyManager.add(epics.get(id));
             return epics.get(id);
         }
     }
