@@ -1,16 +1,17 @@
-package Service;
+package service.taskmanagers;
 
-import Model.Epic;
-import Model.Status;
-import Model.SubTask;
-import Model.Task;
+import model.Epic;
+import model.Status;
+import model.SubTask;
+import model.Task;
+import service.history.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class inMemoryTaskManager implements TaskManager {
-    public inMemoryTaskManager() {
+public class InMemoryTaskManager implements TaskManager {
+    public InMemoryTaskManager() {
         this.tasks = new HashMap<>();
         this.epics = new HashMap<>();
         this.subTasks = new HashMap<>();
@@ -37,7 +38,7 @@ public class inMemoryTaskManager implements TaskManager {
     @Override
     public Epic createEpic(Epic epic) {
         epic.setId(generateId());
-        epics.put(epic.getId(),calculatingTheStatusEpic(epic));
+        epics.put(epic.getId(), calculatingTheStatusEpic(epic));
         return epic;
     }
 
@@ -77,7 +78,7 @@ public class inMemoryTaskManager implements TaskManager {
         if (!check(tasks.get(id))) {
             return null;
         } else {
-            historyManager.addTaskHistory(tasks.get(id));
+            historyManager.add(tasks.get(id));
             return tasks.get(id);
         }
     }
@@ -87,7 +88,7 @@ public class inMemoryTaskManager implements TaskManager {
         if (!check(subTasks.get(id))) {
             return null;
         } else {
-            historyManager.addTaskHistory(subTasks.get(id));
+            historyManager.add(subTasks.get(id));
             return subTasks.get(id);
         }
     }
@@ -97,7 +98,7 @@ public class inMemoryTaskManager implements TaskManager {
         if (!check(epics.get(id))) {
             return null;
         } else {
-            historyManager.addTaskHistory(epics.get(id));
+            historyManager.add(epics.get(id));
             return epics.get(id);
         }
     }
@@ -143,6 +144,9 @@ public class inMemoryTaskManager implements TaskManager {
     @Override
     public void removeTask(int id) {
         if (check(tasks.get(id))) {
+            if (historyManager.getHistory().equals(tasks.get(id))) {
+                historyManager.remove(tasks.get(id).getId());
+            }
             tasks.remove(id);
         }
     }
@@ -152,6 +156,9 @@ public class inMemoryTaskManager implements TaskManager {
         if (check(subTasks.get(id))) {
             epics.get(subTasks.get(id).getEpic().getId()).getSubTasks().remove(subTasks.get(id));
             epics.put(subTasks.get(id).getEpic().getId(), calculatingTheStatusEpic(epics.get(subTasks.get(id).getEpic().getId())));
+            if (historyManager.getHistory().equals(subTasks.get(id))) {
+                historyManager.remove(subTasks.get(id).getId());
+            }
             subTasks.remove(id);
         }
     }
@@ -161,6 +168,9 @@ public class inMemoryTaskManager implements TaskManager {
         if (check(epics.get(id))) {
             for (SubTask subTask : epics.get(id).getSubTasks()) {
                 subTask.setEpic(null);
+            }
+            if (historyManager.getHistory().equals(epics.get(id))) {
+                historyManager.remove(epics.get(id).getId());
             }
             epics.remove(id);
         }
@@ -172,7 +182,7 @@ public class inMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getAll() {
+    public List<Task> getHistoryAll() {
         return historyManager.getHistory();
     }
 

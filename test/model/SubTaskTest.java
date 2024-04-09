@@ -1,22 +1,20 @@
-package Model;
+package model;
 
-import Service.inMemoryTaskManager;
+import service.taskmanagers.InMemoryTaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubTaskTest {
-    private inMemoryTaskManager taskManager;
+    private InMemoryTaskManager taskManager;
     private SubTask subTask;
     private Epic epic;
 
     @BeforeEach
     public void setUp() {
-        taskManager = new inMemoryTaskManager();
+        taskManager = new InMemoryTaskManager();
         epic = new Epic("NameEpic", "EpicDescription");
         SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.NEW);
         epic = taskManager.createEpic(epic);

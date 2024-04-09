@@ -1,8 +1,8 @@
-package Service;
+package service.taskmanagers;
 
-import Model.Epic;
-import Model.SubTask;
-import Model.Task;
+import model.Epic;
+import model.SubTask;
+import model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +46,6 @@ public interface TaskManager {
 
     ArrayList<SubTask> getSubTaskEpic(Epic epic);
 
-    List<Task> getAll();
+    List<Task> getHistoryAll();
 }
 
