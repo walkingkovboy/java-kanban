@@ -28,16 +28,20 @@ public class InMemoryTaskManager implements TaskManager {
     private int generateId() {
         return seq++;
     }
-    protected void setLastId(int id){
-        this.seq=id;
+
+    protected void setLastId(int id) {
+        this.seq = id;
     }
-    protected void addTask(Task task){
+
+    protected void addTask(Task task) {
         tasks.put(task.getId(), task);
     }
-    protected void addEpic(Epic epic){
-        epics.put(epic.getId(),epic);
+
+    protected void addEpic(Epic epic) {
+        epics.put(epic.getId(), epic);
     }
-    protected void addSubtask(SubTask subTask,int idEpic){
+
+    protected void addSubtask(SubTask subTask, int idEpic) {
         subTask.setEpic(epics.get(idEpic));
         epics.get(idEpic).setSubTasks(subTask);
         subTasks.put(subTask.getId(), subTask);
@@ -121,7 +125,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<Task> getTasksAll() {
-      return   new ArrayList<>(tasks.values());
+        return new ArrayList<>(tasks.values());
     }
 
     @Override
@@ -131,7 +135,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<SubTask> getSubTasksAll() {
-     return new ArrayList<>(subTasks.values());
+        return new ArrayList<>(subTasks.values());
     }
 
     @Override
@@ -241,5 +245,4 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean check(Object object) {
         return object != null;
     }
-
 }
