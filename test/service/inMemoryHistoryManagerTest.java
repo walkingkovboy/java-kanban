@@ -9,7 +9,7 @@ import service.taskmanagers.Manager;
 import service.taskmanagers.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 
-class inMemoryHistoryManagerTest extends HistoryManagerTest<InMemoryHistoryManager>  {
+class inMemoryHistoryManagerTest extends service.HistoryManagerTest<InMemoryHistoryManager> {
     Epic epic;
     SubTask subTask;
     TaskManager tm = Manager.getDefaultTaskManager();

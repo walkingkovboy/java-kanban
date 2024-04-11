@@ -2,15 +2,21 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import service.taskmanagers.FileBackedTaskManager;
 import service.taskmanagers.Manager;
 import service.taskmanagers.TaskManager;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Main {
 
     public static void main(String[] args) {
         //sprint4(); //Изменил проверку
         //sprint5();
-        sprint6();
+        //sprint6();
+        sprint7();
+
     }
 
     public static void sprint4() {
@@ -134,6 +140,51 @@ public class Main {
         tm.removeEpic(epic.getId());
         tm.removeEpic(epic1.getId());
         System.out.println(tm.getHistoryAll().size());
+    }
+
+    public static void sprint7() {
+        Path file = Paths.get(System.getProperty("user.dir"), "data", "data.csv");
+        FileBackedTaskManager fm = new FileBackedTaskManager(file);
+        //TaskManager tm = Manager.getDefaultTaskManager();
+        Task task = new Task("Обычная задача", "Первая", Status.NEW);
+        Task task1 = new Task("Обычная задача", "Вторая", Status.NEW);
+        SubTask subTask = new SubTask("Подзадача", "Первая подзадача", Status.NEW);
+        SubTask subTask1 = new SubTask("Подзадача", "Вторая подзадача", Status.NEW);
+        SubTask subTask2 = new SubTask("Подзадача", "Третья подзадача", Status.NEW);
+        Epic epic = new Epic("Эпик", "Первый эпик");
+        Epic epic1 = new Epic("Эпик", "Второй эпик");
+        epic = fm.createEpic(epic);
+        epic1 = fm.createEpic(epic1);
+        subTask = fm.createSubTask(subTask, 0);
+        subTask1 = fm.createSubTask(subTask1, 0);
+        subTask2 = fm.createSubTask(subTask2, 0);
+        task = fm.createTask(task);
+        task1 = fm.createTask(task1);
+        fm.getTask(task.getId());
+        fm.getTask(task.getId());
+        fm.getTask(task.getId());
+        fm.getEpic(epic.getId());
+        fm.getEpic(epic.getId());
+        fm.getEpic(epic1.getId());
+        fm.getEpic(epic1.getId());
+        fm.getEpic(epic.getId());
+        fm.getTask(task1.getId());
+        fm.getSubTask(subTask1.getId());
+        fm.getSubTask(subTask1.getId());
+        fm.getSubTask(subTask2.getId());
+        fm.getSubTask(subTask.getId());
+        fm.getSubTask(subTask1.getId());
+        fm.getSubTask(subTask.getId());
+        System.out.println(fm.getEpicsAll());
+        System.out.println(fm.getTasksAll());
+        System.out.println(fm.getSubTasksAll());
+        System.out.println("История:" + fm.getHistoryAll() + "\n");
+        FileBackedTaskManager fm2 = FileBackedTaskManager.loadFromFile(file);
+        System.out.println(fm.getEpicsAll());
+        System.out.println(fm.getTasksAll());
+        System.out.println(fm.getSubTasksAll());
+        System.out.println("История:" + fm2.getHistoryAll() + "\n");
+
     }
 }
 

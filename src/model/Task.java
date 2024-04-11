@@ -50,14 +50,11 @@ public class Task {
     public void setStatus(Status status) {
         this.status = status;
     }
-
+    public String getType() {
+        return "TASK";
+    }
     @Override
     public String toString() {
-        return "Task{" +
-                "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", id= '" + id +
-                ", status='" + status + '\'' +
-                '}';
+        return String.format("%s,%s,%s,%s,%s", this.getType(), id, title, status, description);
     }
 }

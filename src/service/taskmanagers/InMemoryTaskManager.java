@@ -9,6 +9,7 @@ import service.history.HistoryManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class InMemoryTaskManager implements TaskManager {
     public InMemoryTaskManager() {
@@ -26,6 +27,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     private int generateId() {
         return seq++;
+    }
+    protected void setLastId(int id){
+        this.seq=id;
+    }
+    protected void addTask(Task task){
+        tasks.put(task.getId(), task);
+    }
+    protected void addEpic(Epic epic){
+        epics.put(epic.getId(),epic);
+    }
+    protected void addSubtask(SubTask subTask,int idEpic){
+        subTask.setEpic(epics.get(idEpic));
+        epics.get(idEpic).setSubTasks(subTask);
+        subTasks.put(subTask.getId(), subTask);
+        subTask.setEpic(calculatingTheStatusEpic(subTask.getEpic()));
     }
 
     @Override
@@ -104,18 +120,18 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void getTasksAll() {
-        new ArrayList<>(tasks.values());
+    public ArrayList<Task> getTasksAll() {
+      return   new ArrayList<>(tasks.values());
     }
 
     @Override
-    public void getEpicsAll() {
-        new ArrayList<>(epics.values());
+    public ArrayList<Epic> getEpicsAll() {
+        return new ArrayList<>(epics.values());
     }
 
     @Override
-    public void getSubTasksAll() {
-        new ArrayList<>(subTasks.values());
+    public ArrayList<SubTask> getSubTasksAll() {
+     return new ArrayList<>(subTasks.values());
     }
 
     @Override
@@ -184,6 +200,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistoryAll() {
         return historyManager.getHistory();
+    }
+
+    public String toStringHistory() {
+        StringJoiner joiner = new StringJoiner(",");
+        for (Task task : historyManager.getHistory()) {
+            joiner.add(Integer.toString(task.getId()));
+        }
+        return joiner.toString();
     }
 
     private Epic calculatingTheStatusEpic(Epic epic) {
