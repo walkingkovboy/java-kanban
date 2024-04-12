@@ -1,8 +1,8 @@
-package service.taskmanagers;
+package service.exception;
 
 
 public class ManagerSaveException extends RuntimeException {
-    public ManagerSaveException(Throwable cause) {
+    public ManagerSaveException(Exception cause) {
         super(cause);
     }
 }
