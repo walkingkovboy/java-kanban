@@ -13,18 +13,19 @@ public class Epic extends Task {
         super(name, description, Status.NEW);
         subTasks = new ArrayList<>();
     }
+
     private void recalculateStartTimeAndEndTime() {
         LocalDateTime startTime = LocalDateTime.MIN;
         Duration duration = Duration.ofMinutes(0);
         for (SubTask subTask : subTasks) {
-            if(subTask.getStartTime().isPresent()){
+            if (subTask.getStartTime().isPresent()) {
                 if (startTime.isBefore(subTask.getStartTime().get())) {
                     startTime = subTask.getStartTime().get();
                 }
                 duration = duration.plus(subTask.getDuration());
             }
         }
-        if(!startTime.isEqual(LocalDateTime.MIN)){
+        if (!startTime.isEqual(LocalDateTime.MIN)) {
             setStartTime(startTime);
             setDuration(duration);
             setEndTime(startTime.plus(duration));
@@ -63,6 +64,7 @@ public class Epic extends Task {
         return String.format("%s,%s,%s,%s,%s", this.getType(), this.getId(), this.getTitle(), this.getStatus(),
                 this.getDescription());
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,6 +72,7 @@ public class Epic extends Task {
         Epic epic = (Epic) o;
         return this.getId() == epic.getId() && Objects.equals(this.getTitle(), epic.getTitle()) && Objects.equals(this.getDescription(), epic.getDescription()) && this.getStatus() == epic.getStatus();
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(this.getTitle(), this.getDescription(), this.getId(), this.getStatus());

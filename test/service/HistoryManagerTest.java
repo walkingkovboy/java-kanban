@@ -25,20 +25,23 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
         List<Task> history = historyManager.getHistory();
         assertFalse(history.isEmpty());
     }
+
     @DisplayName("Если ничего не добавили история должна быть пустой")
     @Test
     void addShouldReturnEmptyListWhenTaskWereNotAdded() {
         List<Task> history = historyManager.getHistory();
         assertTrue(history.isEmpty());
     }
+
     @DisplayName("Добавляем одну и ту же задачу в историю дважды, размер истории должен быть равен единице")
     @Test
     void addShouldNotWorkForDuplicate() {
         historyManager.add(task1);
         historyManager.add(task1);
         List<Task> history = historyManager.getHistory();
-        assertEquals(1,history.size());
+        assertEquals(1, history.size());
     }
+
     @DisplayName("Проверка на удалении первой задачи из истории, добавили три задачи, одну удалили, размер истории равен двум")
     @Test
     void removeFromTail() {
@@ -47,8 +50,9 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
         historyManager.add(task3);
         historyManager.remove(1);
         List<Task> history = historyManager.getHistory();
-        assertEquals(2,history.size());
+        assertEquals(2, history.size());
     }
+
     @DisplayName("Проверка на удалении второй задачи из истории, добавили три задачи, одну удалили, размер истории равен двум")
     @Test
     void removeFromMiddle() {
@@ -57,8 +61,9 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
         historyManager.add(task3);
         historyManager.remove(2);
         List<Task> history = historyManager.getHistory();
-        assertEquals(2,history.size());
+        assertEquals(2, history.size());
     }
+
     @DisplayName("Проверка на удалении последней задачи из истории, добавили три задачи, одну удалили, размер истории равен двум")
     @Test
     void removeFromHead() {
@@ -67,8 +72,9 @@ public abstract class HistoryManagerTest<T extends HistoryManager> {
         historyManager.add(task3);
         historyManager.remove(3);
         List<Task> history = historyManager.getHistory();
-        assertEquals(2,history.size());
+        assertEquals(2, history.size());
     }
+
     @DisplayName("Проверяем метод get при наличии элементов в истории")
     @Test
     void getHistory() {

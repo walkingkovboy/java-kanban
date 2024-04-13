@@ -187,7 +187,8 @@ public class Main {
         System.out.println("История:" + fm2.getHistoryAll() + "\n");
 
     }
-    static void sprint8 (){
+
+    static void sprint8() {
         Path file = Paths.get(System.getProperty("user.dir"), "data", "data.csv");
         FileBackedTaskManager fm = new FileBackedTaskManager(file);
         Task task = new Task("Обычная задача", "Первая", Status.NEW);

@@ -198,7 +198,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpic(int id) {
         if (check(epics.get(id))) {
-            for (SubTask subTask: epics.get(id).getSubTasks()){
+            for (SubTask subTask : epics.get(id).getSubTasks()) {
                 subTask.setEpic(null);
             }
             if (historyManager.getHistory().equals(epics.get(id))) {
@@ -258,7 +258,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isIntersectionWithTasks(Task task) {
-        if(!taskByTime.isEmpty()) {
+        if (!taskByTime.isEmpty()) {
             var bob = taskByTime.stream().filter(task2 -> task.getId() != task2.getId())
                     .map(task2 -> isTimeIntersection(
                             task.getStartTime().orElse(LocalDateTime.MIN),
@@ -269,7 +269,7 @@ public class InMemoryTaskManager implements TaskManager {
                 return bob.get();
             }
         }
-       return false;
+        return false;
     }
 
     private boolean isTimeIntersection(LocalDateTime startTime1, Duration duration1, LocalDateTime startTime2, Duration duration2) {

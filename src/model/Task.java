@@ -29,6 +29,7 @@ public class Task implements Comparable<Task> {
         this.status = status;
         this.id = id;
     }
+
     public Duration getDuration() {
         return duration.orElse(Duration.ofMinutes(0));
     }
@@ -90,11 +91,12 @@ public class Task implements Comparable<Task> {
         String startTimeStr = !startTime.isPresent() ? IF_TIME_NOT_SET : startTime.get().format(DATE_TIME_FORMATTER);
         return String.format("%s,%s,%s,%s,%s,%s,%s", this.getType(), id, title, status, description, startTimeStr, getDuration().toString());
     }
+
     @Override
     public int compareTo(Task o) {
-        if(this.startTime.isPresent() && o.startTime.isPresent()){
+        if (this.startTime.isPresent() && o.startTime.isPresent()) {
             return this.startTime.get().compareTo(o.startTime.get());
-        }else{
+        } else {
             return 0;
         }
     }

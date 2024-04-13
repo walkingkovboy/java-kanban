@@ -46,27 +46,30 @@ public class FileBackedTaskManagerTest {
         FileBackedTaskManager fileTaskManager = FileBackedTaskManager.loadFromFile(file);
         assertEquals(task, fileTaskManager.getTask(0));
     }
+
     @Test
     @DisplayName("Проверка эпика при сохрании и загрузки файла")
-    void saveBlankEpicToFileAndLoadEpicFromFile(){
+    void saveBlankEpicToFileAndLoadEpicFromFile() {
         fm.createEpic(epic);
         FileBackedTaskManager fileTaskManager = FileBackedTaskManager.loadFromFile(file);
-        assertEquals(epic,fileTaskManager.getEpic(0));
+        assertEquals(epic, fileTaskManager.getEpic(0));
     }
+
     @Test
     @DisplayName("Проверка подзадачи при сохрании и загрузки файла")
-    void saveBlankSubTaskToFileAndLoadSubTaskFromFile(){
+    void saveBlankSubTaskToFileAndLoadSubTaskFromFile() {
         fm.createEpic(epic);
-        fm.createSubTask(subTask,epic.getId());
+        fm.createSubTask(subTask, epic.getId());
         FileBackedTaskManager fileTaskManager = FileBackedTaskManager.loadFromFile(file);
-        assertEquals(subTask,fileTaskManager.getSubTask(1));
+        assertEquals(subTask, fileTaskManager.getSubTask(1));
     }
+
     @Test
     @DisplayName("Проверка загрузки некоректного файла")
-    void checkingTheDownloadOfAnIncorrectFile(){
-        var throwex=assertThrows(ManagerSaveException.class,()->{
+    void checkingTheDownloadOfAnIncorrectFile() {
+        var throwex = assertThrows(ManagerSaveException.class, () -> {
             FileBackedTaskManager.loadFromFile(Paths.get(System.getProperty("user.dir")));
-        },"Путь не найден");
+        }, "Путь не найден");
         assertEquals("Путь не найден", throwex.getMessage());
     }
 }
