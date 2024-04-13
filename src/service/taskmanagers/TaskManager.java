@@ -26,11 +26,11 @@ public interface TaskManager {
 
     Epic getEpic(int id);
 
-    void getTasksAll();
+    ArrayList<Task> getTasksAll();
 
-    void getEpicsAll();
+    ArrayList<Epic> getEpicsAll();
 
-    void getSubTasksAll();
+    ArrayList<SubTask> getSubTasksAll();
 
     void removeAllTasks();
 
