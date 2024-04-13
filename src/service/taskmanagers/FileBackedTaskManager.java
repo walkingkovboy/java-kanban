@@ -13,24 +13,31 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private Path tasksFile;
-
+    private static final String IF_TIME_NOT_SET = "";
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     public FileBackedTaskManager(Path tasksFile) {
         super();
         this.tasksFile = tasksFile;
     }
 
-    public static FileBackedTaskManager loadFromFile(Path path) {
+    public static FileBackedTaskManager loadFromFile(Path path) throws ManagerSaveException{
         Integer maxId = 0;
         FileBackedTaskManager fm = new FileBackedTaskManager(path);
         try (BufferedReader bufferedReader = Files.newBufferedReader((path), StandardCharsets.UTF_8)) {
-            String line = bufferedReader.readLine();
-            while (!line.equals("")) {
+            Optional<String> str = Optional.ofNullable(bufferedReader.readLine());
+            String line;
+            while (!str.get().equals("") && str.isPresent()) {
+                line = str.get();
                 String[] values = line.split(",");
                 Integer id = Integer.valueOf(values[1]);
                 String title = values[2];
@@ -38,25 +45,48 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 String description = values[4];
                 switch (values[0]) {
                     case ("TASK"):
-                        fm.addTask(new Task(title, description, status, id));
+                        Task task =new Task(title, description, status, id);
+                        if (values.length>6 && !values[5].equals(IF_TIME_NOT_SET)){
+                            String startTime=values[5];
+                            String duration= values[6];
+                            task.setStartTime(LocalDateTime.parse(startTime, DATE_TIME_FORMATTER));
+                            task.setDuration(Duration.parse(duration));
+                        }
+                        fm.addTask(task);
                         break;
                     case ("EPIC"):
-                        fm.addEpic(new Epic(title, description, status, id));
+                        Epic epic =new Epic(title, description, status, id);
+                        if (values.length>6 && !values[5].equals(IF_TIME_NOT_SET)){
+                            String startTime=values[5];
+                            String duration= values[6];
+                            epic.setStartTime(LocalDateTime.parse(startTime, DATE_TIME_FORMATTER));
+                            epic.setDuration(Duration.parse(duration));
+                        }
+                        fm.addEpic(epic);
                         break;
                     case ("SUBTASK"):
                         int epicId = Integer.valueOf(values[5]);
-                        fm.addSubtask(new SubTask(title, description, status, id), epicId);
+                        SubTask subtask = new SubTask(title, description, status, id);
+                        if (values.length>7 && !values[6].equals(IF_TIME_NOT_SET)){
+                            String startTime=values[6];
+                            String duration= values[7];
+                            subtask.setStartTime(LocalDateTime.parse(startTime, DATE_TIME_FORMATTER));
+                            subtask.setDuration(Duration.parse(duration));
+                        }
+                        fm.addSubtask(subtask,epicId);
                         break;
                 }
-                line = bufferedReader.readLine();
+                str = Optional.ofNullable(bufferedReader.readLine());
             }
             String history = bufferedReader.readLine();
-            String[] historyElems = history.split(",");
-            for (String historyElem : historyElems) {
-                Integer id = Integer.valueOf(historyElem);
-                fm.getTask(id);
-                fm.getEpic(id);
-                fm.getSubTask(id);
+            if (history != null) {
+                String[] historyElems = history.split(",");
+                for (String historyElem : historyElems) {
+                    Integer id = Integer.valueOf(historyElem);
+                    fm.getTask(id);
+                    fm.getEpic(id);
+                    fm.getSubTask(id);
+                }
             }
             fm.setLastId(maxId);
         } catch (IOException e) {
