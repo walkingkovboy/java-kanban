@@ -304,9 +304,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (!taskByTime.isEmpty()) {
             var bob = taskByTime.stream().filter(task2 -> task.getId() != task2.getId())
                     .map(task2 -> isTimeIntersection(
-                            task.getStartTime()!=null ?task.getStartTime():LocalDateTime.MIN,
+                            task.getStartTime() != null ? task.getStartTime() : LocalDateTime.MIN,
                             task.getDuration(),
-                            task2.getStartTime()!=null ?task2.getStartTime():(LocalDateTime.MIN.plusNanos(1)),
+                            task2.getStartTime() != null ? task2.getStartTime() : (LocalDateTime.MIN.plusNanos(1)),
                             task2.getDuration())).findFirst();
             if (bob.isPresent()) {
                 return bob.get();
