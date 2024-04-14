@@ -15,7 +15,8 @@ public class Main {
         //sprint4(); //Изменил проверку
         //sprint5();
         //sprint6();
-        sprint7();
+        //sprint7();
+        sprint8();
 
     }
 
@@ -185,6 +186,13 @@ public class Main {
         System.out.println(fm.getSubTasksAll());
         System.out.println("История:" + fm2.getHistoryAll() + "\n");
 
+    }
+
+    static void sprint8() {
+        Path file = Paths.get(System.getProperty("user.dir"), "data", "data.csv");
+        FileBackedTaskManager fm = new FileBackedTaskManager(file);
+        Task task = new Task("Обычная задача", "Первая", Status.NEW);
+        task = fm.createTask(task);
     }
 }
 

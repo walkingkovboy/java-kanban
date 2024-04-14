@@ -47,5 +47,7 @@ public interface TaskManager {
     ArrayList<SubTask> getSubTaskEpic(Epic epic);
 
     List<Task> getHistoryAll();
+
+    List<Task> getPrioritizedTasks();
 }
 
