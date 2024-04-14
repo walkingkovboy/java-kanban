@@ -86,31 +86,63 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return subTask;
     }
+    @Override
+    public boolean addSubTask(SubTask subTask, int idEpic){
+        if (!isIntersectionWithTasks(subTask)) {
+            subTask.setId(generateId());
+            subTask.setEpic(epics.get(idEpic));
+            if (epics.get(idEpic)!=null) {
+                epics.get(idEpic).setSubTasks(subTask);
+                subTask.setEpic(calculatingTheStatusEpic(subTask.getEpic()));
+                epics.get(idEpic).recalculateStartTimeAndEndTime();
+            }
+            subTasks.put(subTask.getId(), subTask);
+            taskByTime.add(subTask);
+
+            return true;
+        }
+        return false;
+    }
+@Override
+public boolean addTaskServer(Task task){
+    if (!isIntersectionWithTasks(task)) {
+        task.setId(generateId());
+        tasks.put(task.getId(), task);
+        taskByTime.add(task);
+        return true;
+    }
+    return false;
+}
 
     @Override
-    public void updateEpic(Epic epic) { //Обновление эпика
+    public boolean updateEpic(Epic epic) { //Обновление эпика
         Epic saved = epics.get(epic.getId());
         epic.setStatus(saved.getStatus());
         saved.getSubTasks().stream()
                 .peek(subtask -> epic.setSubTasks(subtask)).close();
         epics.put(epic.getId(), calculatingTheStatusEpic(epic));
         epics.get(epic.getId()).recalculateStartTimeAndEndTime();
+        return true;
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public boolean updateSubTask(SubTask subTask) {
         if (!isIntersectionWithTasks(subTask)) {
             subTask.setEpic(calculatingTheStatusEpic(subTask.getEpic()));
             subTasks.put(subTask.getId(), subTask);
             epics.get(subTask.getEpic().getId()).recalculateStartTimeAndEndTime();
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void updateTask(Task task) {
+    public boolean updateTask(Task task) {
         if (!isIntersectionWithTasks(task)) {
             tasks.put(task.getId(), task);
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -144,18 +176,18 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Task> getTasksAll() {
-        return new ArrayList<>(tasks.values());
+    public Collection<Task> getTasksAll() {
+        return tasks.values();
     }
 
     @Override
-    public ArrayList<Epic> getEpicsAll() {
-        return new ArrayList<>(epics.values());
+    public Collection<Epic> getEpicsAll() {
+        return  epics.values();
     }
 
     @Override
-    public ArrayList<SubTask> getSubTasksAll() {
-        return new ArrayList<>(subTasks.values());
+    public Collection<SubTask> getSubTasksAll() {
+        return subTasks.values();
     }
 
     @Override
@@ -180,17 +212,19 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeTask(int id) {
+    public boolean removeTask(int id) {
         if (check(tasks.get(id))) {
             if (historyManager.getHistory().equals(tasks.get(id))) {
                 historyManager.remove(tasks.get(id).getId());
             }
             tasks.remove(id);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void removeSubTask(int id) {
+    public boolean removeSubTask(int id) {
         if (check(subTasks.get(id))) {
             epics.get(subTasks.get(id).getEpic().getId()).getSubTasks().remove(subTasks.get(id));
             epics.put(subTasks.get(id).getEpic().getId(), calculatingTheStatusEpic(epics.get(subTasks.get(id).getEpic().getId())));
@@ -199,11 +233,13 @@ public class InMemoryTaskManager implements TaskManager {
             }
             epics.get(subTasks.get(id).getEpic().getId()).recalculateStartTimeAndEndTime();
             subTasks.remove(id);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void removeEpic(int id) {
+    public boolean removeEpic(int id) {
         if (check(epics.get(id))) {
             for (SubTask subTask : epics.get(id).getSubTasks()) {
                 subTask.setEpic(null);
@@ -212,7 +248,9 @@ public class InMemoryTaskManager implements TaskManager {
                 historyManager.remove(epics.get(id).getId());
             }
             epics.remove(id);
+            return true;
         }
+        return false;
     }
 
     @Override

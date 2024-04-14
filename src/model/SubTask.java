@@ -26,8 +26,9 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return String.format("%s,%s,%s,%s,%s,%s", this.getType(), this.getId(), this.getTitle(), this.getStatus(),
-                this.getDescription(), this.getEpic().getId());
+        String startTimeStr = startTime.isEmpty() ? IF_TIME_NOT_SET : startTime.get().format(DATE_TIME_FORMATTER);
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s", this.getType(), this.getId(), this.getTitle(), this.getStatus(),
+                this.getDescription(), this.getEpic().getId(), startTimeStr, getDuration().toString());
     }
 
 }
