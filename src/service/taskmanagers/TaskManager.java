@@ -50,7 +50,9 @@ public interface TaskManager {
     List<Task> getHistoryAll();
 
     List<Task> getPrioritizedTasks();
-    boolean addSubTask(SubTask subTask,int epicId);
+
+    boolean addSubTask(SubTask subTask, int epicId);
+
     boolean addTaskServer(Task task);
 }
 
