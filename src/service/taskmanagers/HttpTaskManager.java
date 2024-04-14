@@ -23,10 +23,14 @@ public class HttpTaskManager extends FileBackedTaskManager {
     private static final String SUBTASK_KEY = "subtasks";
     private static final String EPIC_KEY = "epics";
     private static final String HISTORY_KEY = "history";
-    private static final Type taskType = new TypeToken<List<Task>>() {}.getType();
-    private static final Type subtaskType = new TypeToken<List<SubTask>>() {}.getType();
-    private static final Type epicType = new TypeToken<List<Epic>>() {}.getType();
-    private static final Type idType = new TypeToken<List<Integer>>() {}.getType();
+    private static final Type taskType = new TypeToken<List<Task>>() {
+    }.getType();
+    private static final Type subtaskType = new TypeToken<List<SubTask>>() {
+    }.getType();
+    private static final Type epicType = new TypeToken<List<Epic>>() {
+    }.getType();
+    private static final Type idType = new TypeToken<List<Integer>>() {
+    }.getType();
 
     public HttpTaskManager(String serverURL) throws InterruptedException, IOException {
         super(null);
@@ -55,23 +59,23 @@ public class HttpTaskManager extends FileBackedTaskManager {
         Optional<Collection<Epic>> epics = Optional.ofNullable(gson.fromJson(client.load(EPIC_KEY), epicType));
         Optional<Collection<SubTask>> subTasks = Optional.ofNullable(gson.fromJson(client.load(SUBTASK_KEY), subtaskType));
         Optional<Collection<Integer>> history = Optional.ofNullable(gson.fromJson(client.load(HISTORY_KEY), idType));
-        if (tasks.isPresent()){
+        if (tasks.isPresent()) {
             for (Task task : tasks.get()) {
                 super.addTask(task);
             }
         }
-        if (epics.isPresent()){
+        if (epics.isPresent()) {
             for (Epic epic : epics.get()) {
                 super.addEpic(epic);
             }
         }
-        if (subTasks.isPresent()){
-            for (SubTask subTask : subTasks.get()){
-                super.addSubTask(subTask,subTask.getEpic().getId());
+        if (subTasks.isPresent()) {
+            for (SubTask subTask : subTasks.get()) {
+                super.addSubTask(subTask, subTask.getEpic().getId());
             }
         }
-        if(history.isPresent()){
-            for(Integer id: history.get()){
+        if (history.isPresent()) {
+            for (Integer id : history.get()) {
                 super.getTask(id);
                 super.getEpic(id);
                 super.getSubTask(id);
