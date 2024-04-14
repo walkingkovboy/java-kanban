@@ -7,20 +7,15 @@ import model.Task;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import service.taskmanagers.FileBackedTaskManager;
 import service.taskmanagers.HttpTaskManager;
 import service.taskmanagers.TaskManager;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HttpTaskManagerTest {
     KVServer kvServer;
-    protected Path file = Paths.get(System.getProperty("user.dir"), "data", "data.csv");
-    protected FileBackedTaskManager fm;
     protected Task task1;
     protected Task task2;
     protected SubTask subTask1;
