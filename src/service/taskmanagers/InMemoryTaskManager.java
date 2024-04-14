@@ -86,12 +86,13 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return subTask;
     }
+
     @Override
-    public boolean addSubTask(SubTask subTask, int idEpic){
+    public boolean addSubTask(SubTask subTask, int idEpic) {
         if (!isIntersectionWithTasks(subTask)) {
             subTask.setId(generateId());
             subTask.setEpic(epics.get(idEpic));
-            if (epics.get(idEpic)!=null) {
+            if (epics.get(idEpic) != null) {
                 epics.get(idEpic).setSubTasks(subTask);
                 subTask.setEpic(calculatingTheStatusEpic(subTask.getEpic()));
                 epics.get(idEpic).recalculateStartTimeAndEndTime();
@@ -103,16 +104,17 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return false;
     }
-@Override
-public boolean addTaskServer(Task task){
-    if (!isIntersectionWithTasks(task)) {
-        task.setId(generateId());
-        tasks.put(task.getId(), task);
-        taskByTime.add(task);
-        return true;
+
+    @Override
+    public boolean addTaskServer(Task task) {
+        if (!isIntersectionWithTasks(task)) {
+            task.setId(generateId());
+            tasks.put(task.getId(), task);
+            taskByTime.add(task);
+            return true;
+        }
+        return false;
     }
-    return false;
-}
 
     @Override
     public boolean updateEpic(Epic epic) { //Обновление эпика
@@ -182,7 +184,7 @@ public boolean addTaskServer(Task task){
 
     @Override
     public Collection<Epic> getEpicsAll() {
-        return  epics.values();
+        return epics.values();
     }
 
     @Override
