@@ -69,6 +69,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic createEpic(Epic epic) {
         epic.setId(generateId());
         epics.put(epic.getId(), calculatingTheStatusEpic(epic));
+        epics.get(epic.getId()).recalculateStartTimeAndEndTime();
         return epic;
     }
 
@@ -81,6 +82,7 @@ public class InMemoryTaskManager implements TaskManager {
             subTasks.put(subTask.getId(), subTask);
             taskByTime.add(subTask);
             subTask.setEpic(calculatingTheStatusEpic(subTask.getEpic()));
+            epics.get(idEpic).recalculateStartTimeAndEndTime();
         }
         return subTask;
     }
@@ -92,6 +94,7 @@ public class InMemoryTaskManager implements TaskManager {
         saved.getSubTasks().stream()
                 .peek(subtask -> epic.setSubTasks(subtask)).close();
         epics.put(epic.getId(), calculatingTheStatusEpic(epic));
+        epics.get(epic.getId()).recalculateStartTimeAndEndTime();
     }
 
     @Override
@@ -99,6 +102,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!isIntersectionWithTasks(subTask)) {
             subTask.setEpic(calculatingTheStatusEpic(subTask.getEpic()));
             subTasks.put(subTask.getId(), subTask);
+            epics.get(subTask.getEpic().getId()).recalculateStartTimeAndEndTime();
         }
     }
 
@@ -162,7 +166,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeAllSubTasks() {
         epics.values().stream().peek(epic -> epic.getSubTasks().clear())
-                .peek(epic -> epics.put(epic.getId(), calculatingTheStatusEpic(epic))).close();
+                .peek(epic -> epics.put(epic.getId(), calculatingTheStatusEpic(epic)))
+                .peek(epic -> epics.get(epic.getId()).recalculateStartTimeAndEndTime())
+                .close();
         subTasks.clear();
     }
 
@@ -191,6 +197,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (historyManager.getHistory().equals(subTasks.get(id))) {
                 historyManager.remove(subTasks.get(id).getId());
             }
+            epics.get(subTasks.get(id).getEpic().getId()).recalculateStartTimeAndEndTime();
             subTasks.remove(id);
         }
     }
@@ -253,10 +260,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    public Set<Task> getPrioritizedTasks() {
-        return taskByTime;
-    }
-
     private boolean isIntersectionWithTasks(Task task) {
         if (!taskByTime.isEmpty()) {
             var bob = taskByTime.stream().filter(task2 -> task.getId() != task2.getId())
@@ -280,5 +283,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     private boolean check(Object object) {
         return object != null;
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(taskByTime);
     }
 }

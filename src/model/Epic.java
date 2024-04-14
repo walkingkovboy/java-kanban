@@ -14,7 +14,7 @@ public class Epic extends Task {
         subTasks = new ArrayList<>();
     }
 
-    private void recalculateStartTimeAndEndTime() {
+    public void recalculateStartTimeAndEndTime() {
         LocalDateTime startTime = LocalDateTime.MIN;
         Duration duration = Duration.ofMinutes(0);
         for (SubTask subTask : subTasks) {
