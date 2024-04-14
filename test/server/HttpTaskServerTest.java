@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -18,10 +19,16 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class EpicsList extends TypeToken<List<Epic>> {
+
+}
 
 public class HttpTaskServerTest {
 
@@ -35,7 +42,6 @@ public class HttpTaskServerTest {
     protected Epic epic1;
     protected Epic epic2;
     TaskManager taskManager;
-    KVServer kvServer;
     HttpTaskServer httpTaskServer;
 
 
@@ -43,11 +49,13 @@ public class HttpTaskServerTest {
         client = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalTimeTypeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationTypeAdapter());
+        //gson = gsonBuilder.create();
         gson = new Gson();
-        kvServer = new KVServer();
-        kvServer.start();
         httpTaskServer = new HttpTaskServer();
-        taskManager = Manager.getDefaultHttpManager();
+        taskManager = Manager.getDefaultTaskManager();
         httpTaskServer.startTaskServer(taskManager, gson);
         task1 = new Task("Обычная задача1", "Первая", Status.NEW);
         task2 = new Task("Обычная задача2", "Вторая", Status.NEW);
@@ -60,7 +68,6 @@ public class HttpTaskServerTest {
 
     void afterEach() {
         HttpTaskServer.stop();
-        kvServer.stop();
     }
 
 
@@ -243,8 +250,7 @@ public class HttpTaskServerTest {
         List<Epic> testList = List.of(epic1, epic2);
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         jsonElement = JsonParser.parseString(response.body());
-        var epicsFromJson = gson.fromJson(jsonElement, new TypeToken<List<Epic>>() {
-        }.getType());
+        var epicsFromJson = gson.fromJson(jsonElement, new EpicsList().getType());
         assertEquals(HttpCode.SUCCESS.getCode(), response.statusCode());
         assertEquals(testList, epicsFromJson);
         afterEach();
