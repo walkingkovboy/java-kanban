@@ -17,12 +17,12 @@ public class HttpTaskServer {
     public HttpTaskServer() {
     }
 
-    private  final Integer PORT = 8080;
-    private  HttpServer httpServer;
+    private final Integer port = 8080;
+    private HttpServer httpServer;
 
     public void startTaskServer(TaskManager taskManager, Gson gson) throws IOException {
         httpServer = HttpServer.create();
-        httpServer.bind(new InetSocketAddress(PORT), 0);
+        httpServer.bind(new InetSocketAddress(port), 0);
         httpServer.createContext("/prioritized", new HttpTasksHandler(taskManager, gson));
         httpServer.createContext("/history", new HttpHistoryHandler(taskManager, gson));
         httpServer.createContext("/task", new HttpTaskHandler(taskManager, gson));
@@ -30,7 +30,7 @@ public class HttpTaskServer {
         // httpServer.createContext("/subtask/epic", new HttpEpicSubtasksHandler(taskManager, gson));
         httpServer.createContext("/epic", new HttpEpicHandler(taskManager, gson));
         httpServer.start();
-        System.out.printf("Сервер запущен на %s порту", PORT);
+        System.out.printf("Сервер запущен на %s порту", port);
     }
 
     public void stop() {
@@ -38,7 +38,7 @@ public class HttpTaskServer {
     }
 
     public Integer getPort() {
-        return PORT;
+        return port;
     }
 
     public static void main(String[] args) {
