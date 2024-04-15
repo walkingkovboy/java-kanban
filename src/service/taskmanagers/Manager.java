@@ -4,6 +4,8 @@ import service.history.HistoryManager;
 import service.history.InMemoryHistoryManager;
 
 public class Manager {
+    private static final String defaultURL = "http://localhost";
+
     public static TaskManager getDefaultTaskManager() {
         return new InMemoryTaskManager();
     }

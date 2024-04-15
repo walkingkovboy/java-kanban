@@ -4,15 +4,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import java.util.Optional;
 
 public class Task implements Comparable<Task> {
     private String title;
     private String description;
     private int id;
     private Status status;
-    protected Optional<Duration> duration = Optional.empty();
-    protected Optional<LocalDateTime> startTime = Optional.empty();
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
     public static final String IF_TIME_NOT_SET = "";
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
@@ -31,23 +30,26 @@ public class Task implements Comparable<Task> {
     }
 
     public Duration getDuration() {
-        return duration.orElse(Duration.ofMinutes(0));
+        if (duration != null) {
+            return duration;
+        }
+        return Duration.ofMinutes(0);
     }
 
     public void setDuration(Duration duration) {
-        this.duration = Optional.of(duration);
+        this.duration = duration;
     }
 
-    public Optional<LocalDateTime> getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
     public void setStartTime(LocalDateTime startTime) {
-        this.startTime = Optional.of(startTime);
+        this.startTime = startTime;
     }
 
     public LocalDateTime getEndTime() {
-        return startTime.get().plus(duration.get());
+        return startTime.plus(duration);
     }
 
     public String getTitle() {
@@ -88,14 +90,14 @@ public class Task implements Comparable<Task> {
 
     @Override
     public String toString() {
-        String startTimeStr = !startTime.isPresent() ? IF_TIME_NOT_SET : startTime.get().format(DATE_TIME_FORMATTER);
+        String startTimeStr = startTime == null ? IF_TIME_NOT_SET : startTime.format(DATE_TIME_FORMATTER);
         return String.format("%s,%s,%s,%s,%s,%s,%s", this.getType(), id, title, status, description, startTimeStr, getDuration().toString());
     }
 
     @Override
     public int compareTo(Task o) {
-        if (this.startTime.isPresent() && o.startTime.isPresent()) {
-            return this.startTime.get().compareTo(o.startTime.get());
+        if (this.startTime != null && o.startTime != null) {
+            return this.startTime.compareTo(o.startTime);
         } else {
             return 0;
         }

@@ -5,6 +5,7 @@ import model.SubTask;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public interface TaskManager {
@@ -14,11 +15,11 @@ public interface TaskManager {
 
     SubTask createSubTask(SubTask subTask, int idEpic);
 
-    void updateEpic(Epic epic);
+    boolean updateEpic(Epic epic);
 
-    void updateSubTask(SubTask subTask);
+    boolean updateSubTask(SubTask subTask);
 
-    void updateTask(Task task);
+    boolean updateTask(Task task);
 
     Task getTask(int id);
 
@@ -26,11 +27,11 @@ public interface TaskManager {
 
     Epic getEpic(int id);
 
-    ArrayList<Task> getTasksAll();
+    Collection<Task> getTasksAll();
 
-    ArrayList<Epic> getEpicsAll();
+    Collection<Epic> getEpicsAll();
 
-    ArrayList<SubTask> getSubTasksAll();
+    Collection<SubTask> getSubTasksAll();
 
     void removeAllTasks();
 
@@ -38,16 +39,20 @@ public interface TaskManager {
 
     void removeAllEpics();
 
-    void removeTask(int id);
+    boolean removeTask(int id);
 
-    void removeSubTask(int id);
+    boolean removeSubTask(int id);
 
-    void removeEpic(int id);
+    boolean removeEpic(int id);
 
     ArrayList<SubTask> getSubTaskEpic(Epic epic);
 
     List<Task> getHistoryAll();
 
     List<Task> getPrioritizedTasks();
+
+    boolean addSubTask(SubTask subTask, int epicId);
+
+    boolean addTaskServer(Task task);
 }
 

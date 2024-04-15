@@ -18,9 +18,9 @@ public class Epic extends Task {
         LocalDateTime startTime = LocalDateTime.MIN;
         Duration duration = Duration.ofMinutes(0);
         for (SubTask subTask : subTasks) {
-            if (subTask.getStartTime().isPresent()) {
-                if (startTime.isBefore(subTask.getStartTime().get())) {
-                    startTime = subTask.getStartTime().get();
+            if (subTask.getStartTime() != null) {
+                if (startTime.isBefore(subTask.getStartTime())) {
+                    startTime = subTask.getStartTime();
                 }
                 duration = duration.plus(subTask.getDuration());
             }
