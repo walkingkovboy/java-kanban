@@ -17,8 +17,8 @@ public class HttpTaskServer {
     public HttpTaskServer() {
     }
 
-    private static final Integer PORT = 8080;
-    private static HttpServer httpServer;
+    private  final Integer PORT = 8080;
+    private  HttpServer httpServer;
 
     public void startTaskServer(TaskManager taskManager, Gson gson) throws IOException {
         httpServer = HttpServer.create();
