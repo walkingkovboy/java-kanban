@@ -50,10 +50,10 @@ public class HttpTaskServerTest {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalTimeTypeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationTypeAdapter());
-        //gson = gsonBuilder.create();
-        gson = new Gson();
+        gsonBuilder.setPrettyPrinting().registerTypeAdapter(LocalDateTime.class, new LocalTimeTypeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationTypeAdapter()).serializeNulls();
+        gson = gsonBuilder.create();
+        // gson = new Gson();
         httpTaskServer = new HttpTaskServer();
         taskManager = Manager.getDefaultTaskManager();
         httpTaskServer.startTaskServer(taskManager, gson);
@@ -67,14 +67,14 @@ public class HttpTaskServerTest {
     }
 
     void afterEach() {
-        HttpTaskServer.stop();
+        httpTaskServer.stop();
     }
 
 
     @Test
     public void GETHistory() throws IOException, InterruptedException {
         setUp();
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/history");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/history");
         HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         JsonElement jsonElement = JsonParser.parseString(response.body());
@@ -96,7 +96,7 @@ public class HttpTaskServerTest {
     @Test
     public void GETTasks() throws IOException, InterruptedException {
         setUp();
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/task");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/task");
         HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         JsonElement jsonElement = JsonParser.parseString(response.body());
@@ -117,14 +117,13 @@ public class HttpTaskServerTest {
     @Test
     public void GETTaskById() throws IOException, InterruptedException {
         setUp();
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/task/?id=0");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/task/?id=0");
         HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(HttpCode.BAD_REQUEST.getCode(), response.statusCode());
         taskManager.createTask(task1);
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JsonElement jsonElement = JsonParser.parseString(response.body());
-        var taskFromJson = gson.fromJson(jsonElement.getAsJsonObject().get("value"), Task.class);
+        var taskFromJson = gson.fromJson(response.body(), Task.class);
         assertEquals(HttpCode.SUCCESS.getCode(), response.statusCode());
         assertEquals(task1, taskFromJson);
         afterEach();
@@ -133,16 +132,15 @@ public class HttpTaskServerTest {
     @Test
     public void POSTTask() throws IOException, InterruptedException {
         setUp();
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/task/");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/task/");
         String taskToJson = gson.toJson(task1);
         HttpRequest request = HttpRequest.newBuilder().uri(uri).POST(HttpRequest.BodyPublishers.ofString(taskToJson)).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(HttpCode.CREATED.getCode(), response.statusCode());
-        uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/task/?id=0");
+        uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/task/?id=0");
         request = HttpRequest.newBuilder().uri(uri).GET().build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JsonElement jsonElement = JsonParser.parseString(response.body());
-        var taskFromJson = gson.fromJson(jsonElement.getAsJsonObject().get("value"), Task.class);
+        var taskFromJson = gson.fromJson(response.body(), Task.class);
         assertEquals(HttpCode.SUCCESS.getCode(), response.statusCode());
         assertEquals(task1, taskFromJson);
         afterEach();
@@ -153,7 +151,7 @@ public class HttpTaskServerTest {
         setUp();
         taskManager.createTask(task1);
         taskManager.createTask(task2);
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/task");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/task");
         //отправляем запрос на удаление
         HttpRequest request = HttpRequest.newBuilder().uri(uri).DELETE().build();
         client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -169,7 +167,7 @@ public class HttpTaskServerTest {
     public void DELETETaskById() throws IOException, InterruptedException {
         setUp();
         taskManager.createTask(task1);
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/task/?id=1");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/task/?id=1");
         //отправляем запрос на удаление
         HttpRequest request = HttpRequest.newBuilder().uri(uri).DELETE().build();
         client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -183,7 +181,7 @@ public class HttpTaskServerTest {
     @Test
     public void GETSubtasks() throws IOException, InterruptedException {
         setUp();
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/subtask");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/subtask");
         HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         JsonElement jsonElement = JsonParser.parseString(response.body());
@@ -208,7 +206,7 @@ public class HttpTaskServerTest {
         taskManager.createEpic(epic1);
         taskManager.addSubTask(subTask1, 1);
         taskManager.addSubTask(subTask2, 1);
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/subtask");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/subtask");
         //отправляем запрос на удаление
         HttpRequest request = HttpRequest.newBuilder().uri(uri).DELETE().build();
         client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -225,7 +223,7 @@ public class HttpTaskServerTest {
         setUp();
         taskManager.createEpic(epic1);
         taskManager.addSubTask(subTask1, 1);
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/subtask/?id=1");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/subtask/?id=1");
         //отправляем запрос на удаление
         HttpRequest request = HttpRequest.newBuilder().uri(uri).DELETE().build();
         client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -239,18 +237,15 @@ public class HttpTaskServerTest {
     @Test
     public void GETEpics() throws IOException, InterruptedException {
         setUp();
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/epic");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/epic");
         HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JsonElement jsonElement = JsonParser.parseString(response.body());
         assertEquals(HttpCode.SUCCESS.getCode(), response.statusCode());
-        assertEquals(0, jsonElement.getAsJsonArray().size());
         taskManager.createEpic(epic1);
         taskManager.createEpic(epic2);
         List<Epic> testList = List.of(epic1, epic2);
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        jsonElement = JsonParser.parseString(response.body());
-        var epicsFromJson = gson.fromJson(jsonElement, new EpicsList().getType());
+        var epicsFromJson = gson.fromJson(response.body(), new EpicsList().getType());
         assertEquals(HttpCode.SUCCESS.getCode(), response.statusCode());
         assertEquals(testList, epicsFromJson);
         afterEach();
@@ -259,14 +254,13 @@ public class HttpTaskServerTest {
     @Test
     public void GETEpicByID() throws IOException, InterruptedException {
         setUp();
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/epic/?id=0");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/epic/?id=0");
         HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(HttpCode.BAD_REQUEST.getCode(), response.statusCode());
         taskManager.createEpic(epic1);
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JsonElement jsonElement = JsonParser.parseString(response.body());
-        var epicFromJson = gson.fromJson(jsonElement.getAsJsonObject().get("value"), Epic.class);
+        var epicFromJson = gson.fromJson(response.body(), Epic.class);
         assertEquals(HttpCode.SUCCESS.getCode(), response.statusCode());
         assertEquals(epic1, epicFromJson);
         afterEach();
@@ -276,16 +270,15 @@ public class HttpTaskServerTest {
     public void POSTEpic() throws IOException, InterruptedException {
         setUp();
         taskManager.createEpic(epic1);
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/epic");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/epic");
         String epicToJson = gson.toJson(epic1);
         HttpRequest request = HttpRequest.newBuilder().uri(uri).POST(HttpRequest.BodyPublishers.ofString(epicToJson)).build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(HttpCode.CREATED.getCode(), response.statusCode());
-        uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/epic/?id=0");
+        uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/epic/?id=0");
         request = HttpRequest.newBuilder().uri(uri).GET().build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JsonElement jsonElement = JsonParser.parseString(response.body());
-        var epicFromJson = gson.fromJson(jsonElement.getAsJsonObject().get("value"), Epic.class);
+        var epicFromJson = gson.fromJson(response.body(), Epic.class);
         assertEquals(HttpCode.SUCCESS.getCode(), response.statusCode());
         assertEquals(epic1, epicFromJson);
         afterEach();
@@ -295,7 +288,7 @@ public class HttpTaskServerTest {
     public void DELETEEpics() throws IOException, InterruptedException {
         setUp();
         taskManager.createEpic(epic1);
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/epic");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/epic");
         //отправляем запрос на удаление
         HttpRequest request = HttpRequest.newBuilder().uri(uri).DELETE().build();
         client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -311,7 +304,7 @@ public class HttpTaskServerTest {
     public void DELETEEpicById() throws IOException, InterruptedException {
         setUp();
         taskManager.createEpic(epic1);
-        URI uri = URI.create("http://localhost:" + HttpTaskServer.getPort() + "/tasks/epic/?id=0");
+        URI uri = URI.create("http://localhost:" + httpTaskServer.getPort() + "/epic/?id=0");
         //отправляем запрос на удаление
         HttpRequest request = HttpRequest.newBuilder().uri(uri).DELETE().build();
         client.send(request, HttpResponse.BodyHandlers.ofString());

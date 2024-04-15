@@ -54,7 +54,7 @@ public class HttpTaskHandler extends HttpRequestHandler {
         }
         Optional<Task> task = Optional.ofNullable(taskManager.getTask(taskId.get()));
         if (task.isPresent()) {
-            writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), task);
+            writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), task.get());
         } else {
             writeResponse(httpExchange, HttpCode.BAD_REQUEST.getCode(), new ErrorResponse("Задачи с таким идентификатором не сущесвует"));
         }

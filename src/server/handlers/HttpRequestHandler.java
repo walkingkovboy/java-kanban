@@ -56,7 +56,7 @@ public abstract class HttpRequestHandler implements HttpHandler {
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         Headers headers = httpExchange.getResponseHeaders();
         headers.set("Content-type", "application/json");
-        httpExchange.sendResponseHeaders(code, 0);
+        httpExchange.sendResponseHeaders(code, bytes.length);
         try (OutputStream outputStream = httpExchange.getResponseBody()) {
             outputStream.write(bytes);
         } finally {

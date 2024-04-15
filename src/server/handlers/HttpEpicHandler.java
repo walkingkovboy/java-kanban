@@ -17,7 +17,6 @@ import java.io.InputStreamReader;
 import java.util.Optional;
 
 public class HttpEpicHandler extends HttpRequestHandler {
-
     public HttpEpicHandler(TaskManager taskManager, Gson gson) {
         super(taskManager, gson);
     }
@@ -55,7 +54,7 @@ public class HttpEpicHandler extends HttpRequestHandler {
         }
         Optional<Task> task = Optional.ofNullable(taskManager.getEpic(epicId.get()));
         if (task.isPresent()) {
-            writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), task);
+            writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), task.get());
         } else {
             writeResponse(httpExchange, HttpCode.BAD_REQUEST.getCode(), new ErrorResponse("Эпика с таким идентификатором не сущесвует"));
         }
