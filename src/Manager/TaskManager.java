@@ -18,14 +18,12 @@ public class TaskManager {
         tasks.put(identifier, task);
         task.setId(identifier);
         identifier++;
-        System.out.println("Задача добавлена в память!");
     }
 
     public void addEpic(Epic epic) {
         epic.setId(identifier);
         epics.put(identifier, epic);
         identifier++;
-        System.out.println("Эпик добавлен в память!");
     }
 
     public void addSubtask(SubTask subTask, int idEpic) {
@@ -35,20 +33,17 @@ public class TaskManager {
         subTask.setEpic(epics.get(idEpic));
         checkStatusEpic(epics.get(idEpic));
         identifier++;
-        System.out.println("Подзадача добавлена в память!");
     }
 
     public void updateTask(Task task) {
         if (checkTask(task)) {
             tasks.put(task.getId(), task);
-            System.out.println("Информация о задаче обновлена!");
         }
     }
 
     public void updateEpic(Epic epic) {
         if (checkEpic(epic)) {
             epics.put(epic.getId(), epic);
-            System.out.println("Информация об Эпике обновлена");
         }
     }
 
@@ -57,7 +52,6 @@ public class TaskManager {
             epics.get(subtasks.get(subTask.getId()).getEpic().getId()).setSubTasks(subTask);
             subtasks.put(subTask.getId(), subTask);
             checkStatusEpic(epics.get(subTask.getEpic().getId()));
-            System.out.println("Информация о подзадаче обновленна, статус эпик пересмотрен");
         }
     }
 
@@ -75,17 +69,11 @@ public class TaskManager {
 
     public void removeAllTasks() {
         tasks.clear();
-        System.out.println("Все задачи удалены");
     }
 
     public void removeAllEpics() {
         epics.clear();
-        if (!subtasks.isEmpty()) {
-            for (SubTask subtask : subtasks.values()) {
-                subtask.setEpic(null);
-            }
-        }
-        System.out.println("Все Эпики удалены, у текущих(сохраненных) подзадач больше нет Эпиков");
+        subtasks.clear();
     }
 
     public void removeAllSubtask() {
@@ -96,13 +84,11 @@ public class TaskManager {
                 checkStatusEpic(epic);
             }
         }
-        System.out.println("Все подзадачи удалены,статус у текущих Эпиков обновлен");
     }
 
     public void removeTask(int id) {
         if (checkTask(tasks.get(id))) {
             tasks.remove(id);
-            System.out.println("Задача с айди " + id + " удалена");
         }
     }
 
@@ -117,7 +103,6 @@ public class TaskManager {
                 }
             }
             epics.remove(id);
-            System.out.println("Эпик с айди " + id + " удален. Теперь у текущих(сохраненных) подзадач нет эпика");
         }
     }
 
@@ -130,32 +115,19 @@ public class TaskManager {
                 }
             }
             subtasks.remove(id);
-            System.out.println("Задача с айди " + id + " удалена. Статус эпиков обновлен.");
         }
     }
 
     public Task getTask(int id) {
-        if (checkTask(tasks.get(id))) {
-            return tasks.get(id);
-        }
-        System.out.println();
-        return null;
+        return tasks.get(id);
     }
 
     public Epic getEpic(int id) {
-        if (checkEpic(epics.get(id))) {
             return epics.get(id);
-        }
-        System.out.println();
-        return null;
     }
 
     public SubTask getSubtask(int id) {
-        if (checkSubtask(subtasks.get(id))) {
             return subtasks.get(id);
-        }
-        System.out.println();
-        return null;
     }
 
     public ArrayList<SubTask> getSubtasksEpic(int id) {
