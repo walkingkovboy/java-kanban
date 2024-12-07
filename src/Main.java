@@ -18,7 +18,7 @@ public class Main {
         System.out.println("Создадим 3 подзадачи");
         tm.getEpic(0);
         tm.getEpic(0);
-        
+
         tm.addSubtask(new SubTask("Подзадача1", "Описание 1 подзадачи", Status.NEW), 0);
         tm.addSubtask(new SubTask("Подзадача2", "Описание 2 подзадачи", Status.IN_PROGRESS), 0);
         tm.addSubtask(new SubTask("Подзадача3", "Описание 3 подзадачи", Status.DONE), 0);

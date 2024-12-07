@@ -7,13 +7,14 @@ import entities.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private int identifier = 0;
     private HashMap<Integer, Task> tasks = new HashMap<>();
     private HashMap<Integer, SubTask> subtasks = new HashMap<>();
     private HashMap<Integer, Epic> epics = new HashMap<>();
-    HistoryManager hystoryManager = Managers.getDefaultHistory();
+    private HistoryManager hystoryManager = Managers.getDefaultHistory();
 
     @Override
     public void addTask(Task task) {
@@ -165,6 +166,11 @@ public class InMemoryTaskManager implements TaskManager {
         }
         System.out.println();
         return null;
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return hystoryManager.getHistory();
     }
 
 
