@@ -172,6 +172,10 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
         return hystoryManager.getHistory();
     }
+    @Override
+    public HistoryManager getHistoryManager() {
+        return hystoryManager;
+    }
 
 
     private boolean checkEpic(Epic epic) {

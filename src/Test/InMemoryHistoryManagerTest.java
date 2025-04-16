@@ -18,8 +18,8 @@ public class InMemoryHistoryManagerTest {
 
     @BeforeEach
     void setUp() {
-        historyManager = Managers.getDefaultHistory();
         taskManager = Managers.getDefault();
+        historyManager = taskManager.getHistoryManager();
     }
 
     @DisplayName("Проверка добавления в историю")
@@ -30,16 +30,14 @@ public class InMemoryHistoryManagerTest {
         taskManager.addTask(new Task("Задача 1", "Описание 1 задачи", Status.DONE));
         taskManager.addTask(new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS));
         taskManager.getEpic(0);
-        taskManager.getEpic(0);
-        taskManager.getEpic(0);
         taskManager.getTask(1);
         taskManager.getTask(2);
-        assertEquals(5, historyManager.getHistory().size());
+        assertEquals(3, historyManager.getHistory().size());
     }
 
-    @DisplayName("Проверка максимального размера истории")
+    @DisplayName("Проверка дубликатов")
     @Test
-    void testHystoryMax() {
+    void testHystoryNoDuplicat() {
         Epic epic = new Epic("Эпик1", "Описание первого эпика");
         taskManager.addEpic(epic);
         taskManager.addTask(new Task("Задача 1", "Описание 1 задачи", Status.DONE));
@@ -56,6 +54,24 @@ public class InMemoryHistoryManagerTest {
         taskManager.getTask(2);
         taskManager.getTask(2);
         taskManager.getTask(2);
-        assertEquals(10, historyManager.getHistory().size());
+        assertEquals(3, historyManager.getHistory().size());
+    }
+
+    @DisplayName("Проверка порядка задач в истории")
+    @Test
+    void testHystoryOrder() {
+        Epic epic = new Epic("Эпик1", "Описание первого эпика");
+        taskManager.addEpic(epic);
+        Task task1 = new Task("Задача 1", "Описание 1 задачи", Status.DONE);
+        Task task2 = new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS);
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+        taskManager.getEpic(0);
+        taskManager.getTask(1);
+        taskManager.getTask(2);
+        taskManager.getTask(1);
+        assertEquals(epic, historyManager.getHistory().get(0));
+        assertEquals(task2, historyManager.getHistory().get(1));
+        assertEquals(task1, historyManager.getHistory().get(2));
     }
 }
