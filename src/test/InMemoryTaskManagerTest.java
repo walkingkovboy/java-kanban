@@ -1,8 +1,8 @@
-package Test;
+package test;
 
-import Manager.InMemoryTaskManager;
-import Manager.Managers;
-import Manager.TaskManager;
+import manager.InMemoryTaskManager;
+import manager.Managers;
+import manager.TaskManager;
 import entities.Epic;
 import entities.Status;
 import entities.SubTask;

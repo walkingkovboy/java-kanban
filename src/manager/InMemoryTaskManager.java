@@ -1,4 +1,4 @@
-package Manager;
+package manager;
 
 import entities.Epic;
 import entities.Status;

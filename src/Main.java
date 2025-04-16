@@ -1,7 +1,6 @@
-import Manager.HistoryManager;
-import Manager.InMemoryTaskManager;
-import Manager.Managers;
-import Manager.TaskManager;
+import manager.HistoryManager;
+import manager.Managers;
+import manager.TaskManager;
 import entities.Epic;
 import entities.Status;
 import entities.SubTask;
