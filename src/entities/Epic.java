@@ -16,6 +16,31 @@ public class Epic extends Task {
     }
 
     @Override
+    public Status getStatus() {
+        if (this.getSubTasks().isEmpty()) {
+            this.setStatus(Status.NEW);
+            return super.getStatus();
+        }
+        int countStatusNew = 0;
+        int countStatusDone = 0;
+        for (SubTask stask : this.getSubTasks()) {
+            if (stask.getStatus() == Status.NEW) {
+                countStatusNew++;
+            } else if (stask.getStatus() == Status.DONE) {
+                countStatusDone++;
+            }
+        }
+        if (countStatusNew == this.getSubTasks().size()) {
+            this.setStatus(Status.NEW);
+        } else if (countStatusDone == this.getSubTasks().size()) {
+            this.setStatus(Status.DONE);
+        } else {
+            this.setStatus(Status.IN_PROGRESS);
+        }
+        return super.getStatus();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), subTasks);
     }

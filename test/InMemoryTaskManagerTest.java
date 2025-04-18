@@ -166,6 +166,6 @@ public class InMemoryTaskManagerTest {
         SubTask subTask = new SubTask("Подзадача", "Описание", Status.NEW);
         taskManager.addSubtask(subTask, epic.getId());
         subTask.setStatus(Status.DONE);
-        assertNotEquals(Status.DONE, taskManager.getEpic(epic.getId()).getStatus());
+        assertEquals(Status.DONE, taskManager.getEpic(epic.getId()).getStatus());
     }
 }
