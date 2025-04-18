@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
         TaskManager tm = Managers.getDefault();
-        HistoryManager hystoryManager = Managers.getDefaultHistory();
+        HistoryManager historyManager = Managers.getDefaultHistory();
         System.out.println("Создадим два эпика");
         tm.addEpic(new Epic("Эпик1", "Описание первого эпика"));
         tm.addEpic(new Epic("Эпик2", "Описание второго эпика"));
@@ -26,7 +26,7 @@ public class Main {
         tm.addTask(new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS));
         System.out.println("Посмотрим, что там с эпиком у которого три подзадачи");
         tm.getTask(5);
-        System.out.println(hystoryManager.getHistory().size());
+        System.out.println(historyManager.getHistory().size());
         System.out.println(tm.getEpics());
         System.out.println("Посмотрим, что там с подзадачами и задачами");
         System.out.println(tm.getSubtasks());
