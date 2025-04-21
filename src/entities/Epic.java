@@ -1,9 +1,49 @@
 package entities;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<SubTask> subTasks;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return Objects.equals(subTasks, epic.subTasks);
+    }
+
+    @Override
+    public Status getStatus() {
+        if (this.getSubTasks().isEmpty()) {
+            this.setStatus(Status.NEW);
+            return super.getStatus();
+        }
+        int countStatusNew = 0;
+        int countStatusDone = 0;
+        for (SubTask stask : this.getSubTasks()) {
+            if (stask.getStatus() == Status.NEW) {
+                countStatusNew++;
+            } else if (stask.getStatus() == Status.DONE) {
+                countStatusDone++;
+            }
+        }
+        if (countStatusNew == this.getSubTasks().size()) {
+            this.setStatus(Status.NEW);
+        } else if (countStatusDone == this.getSubTasks().size()) {
+            this.setStatus(Status.DONE);
+        } else {
+            this.setStatus(Status.IN_PROGRESS);
+        }
+        return super.getStatus();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subTasks);
+    }
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
