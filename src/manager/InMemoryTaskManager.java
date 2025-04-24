@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
+    public void setIdentifier(int identifier) {
+        this.identifier = identifier;
+    }
+
     private int identifier = 0;
     protected HashMap<Integer, Task> tasks = new HashMap<>();
     protected HashMap<Integer, SubTask> subtasks = new HashMap<>();

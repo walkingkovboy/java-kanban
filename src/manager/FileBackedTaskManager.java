@@ -48,7 +48,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 epic.setStatus(status);
                 return epic;
             case "SUBTASK":
-                return new SubTask(name, description, id, status, epics.get(Integer.parseInt(parts[5])));
+                return new SubTask(name, description, id, status, Integer.parseInt(parts[5]));
             default:
                 throw new ManagerLoadException("Неизвестный тип задачи при загрузке: " + type);
         }
@@ -152,17 +152,26 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             reader.readLine();
-
+            int maxId = 0;
             while ((line = reader.readLine()) != null && !line.isEmpty()) {
                 Task task = manager.fromString(line);
                 int id = task.getId();
-
+                if (id > maxId) {
+                    maxId = id;
+                }
                 if (task.getClass().equals(Epic.class)) {
                     manager.epics.put(id, (Epic) task);
                 } else if (task.getClass().equals(SubTask.class)) {
                     manager.subtasks.put(id, (SubTask) task);
                 } else {
                     manager.tasks.put(id, task);
+                }
+            }
+            manager.setIdentifier(maxId + 1);
+            for (SubTask subTask : manager.getSubtasks()) {
+                Epic epic = manager.epics.get(subTask.getEpicId());
+                if (epic != null) {
+                    epic.setSubTasks(subTask);
                 }
             }
 
