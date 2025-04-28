@@ -1,14 +1,53 @@
-import manager.HistoryManager;
-import manager.Managers;
-import manager.TaskManager;
 import entities.Epic;
 import entities.Status;
 import entities.SubTask;
 import entities.Task;
+import manager.FileBackedTaskManager;
+import manager.HistoryManager;
+import manager.Managers;
+import manager.TaskManager;
+
+import java.io.File;
 
 public class Main {
 
     public static void main(String[] args) {
+        FileBackedTaskManager manager = new FileBackedTaskManager();
+
+        Task task1 = new Task("Задача 1", "Описание задачи", Status.NEW);
+        Task task2 = new Task("Задача 2", "Описание задачи 2", Status.IN_PROGRESS);
+        manager.addTask(task1);
+        manager.addTask(task2);
+
+        Epic epic1 = new Epic("Эпик 1", "Описание первого эпика");
+        Epic epic2 = new Epic("Эпик 2", "Описание второго эпика");
+        manager.addEpic(epic1);
+        manager.addEpic(epic2);
+
+        SubTask subTask1 = new SubTask("Подзадача 1", "Описание подзадачи 1", Status.NEW);
+        SubTask subTask2 = new SubTask("Подзадача 2", "Описание подзадачи 2", Status.IN_PROGRESS);
+        SubTask subTask3 = new SubTask("Подзадача 3", "Описание подзадачи 3", Status.DONE);
+        manager.addSubtask(subTask1, epic1.getId());
+        manager.addSubtask(subTask2, epic1.getId());
+        manager.addSubtask(subTask3, epic2.getId());
+
+
+        FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(new File("tasks.csv"));
+        System.out.println("Загружено из файла:");
+
+        // Выводим всё
+        for (Task t : loaded.getTasks()) {
+            System.out.println(t);
+        }
+        for (Epic e : loaded.getEpics()) {
+            System.out.println(e);
+        }
+        for (SubTask s : loaded.getSubtasks()) {
+            System.out.println(s);
+        }
+    }
+
+    void sprint5() {
         TaskManager tm = Managers.getDefault();
         HistoryManager hystoryManager = Managers.getDefaultHistory();
         System.out.println("Создадим два эпика");
