@@ -38,10 +38,10 @@ public class FileBackedTaskManagerTest {
         File tempFile = File.createTempFile("tasks", ".csv");
         tempFile.deleteOnExit();
         String csvContent = String.join("\n",
-                "id,type,name,status,description,epic",
-                "0,TASK,Задача 1,NEW,Описание задачи,",
-                "1,EPIC,Эпик 1,NEW,Описание эпика,",
-                "2,SUBTASK,Подзадача 1,NEW,Описание подзадачи,1"
+                "id,type,name,status,description,startTime,duration,epic",
+                "0,TASK,Задача 1,NEW,Описание задачи,null,null,null",
+                "1,EPIC,Эпик 1,NEW,Описание эпика,null,null,null",
+                "2,SUBTASK,Подзадача 1,NEW,Описание подзадачи,null,null,1"
         );
         try (FileWriter writer = new FileWriter(tempFile)) {
             writer.write(csvContent);

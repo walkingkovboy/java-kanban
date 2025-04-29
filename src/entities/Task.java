@@ -1,5 +1,7 @@
 package entities;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -7,6 +9,8 @@ public class Task {
     protected String description;
     protected int id;
     protected Status status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -26,6 +30,22 @@ public class Task {
         this.description = description;
         this.id = id;
 
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime != null && duration != null) {
+            return startTime.plus(duration);
+        } else {
+            return null;
+        }
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
     public String getName() {
@@ -80,6 +100,17 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
+                ", duration=" + (duration != null ? duration.toMinutes() + " min" : "null") +
+                ", startTime=" + (startTime != null ? startTime : "null") +
+                ", endTime=" + (getEndTime() != null ? getEndTime() : "null") +
                 '}';
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 }

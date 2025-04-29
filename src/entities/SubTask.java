@@ -35,17 +35,16 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        String result = "SubTask{" +
-                ", name='" + name + '\'' +
+        return "SubTask{" +
+                "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", id=" + id +
-                ", status=" + status;
-        if (epic != null) {
-            result = result + ", epicId = " + epic.getId();
-        } else if (epic == null) {
-            result = result + ", epicId=null";
-        }
-        return result + "}";
+                ", status=" + status +
+                ", epicId=" + (epic != null ? epic.getId() : epicId) +
+                ", duration=" + (duration != null ? duration.toMinutes() + " min" : "null") +
+                ", startTime=" + (startTime != null ? startTime : "null") +
+                ", endTime=" + (getEndTime() != null ? getEndTime() : "null") +
+                '}';
     }
 
     @Override
