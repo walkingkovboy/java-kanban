@@ -3,6 +3,7 @@ import entities.Status;
 import entities.SubTask;
 import entities.Task;
 import manager.FileBackedTaskManager;
+import manager.TaskManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,11 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FileBackedTaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest{
+    @Override
+    protected TaskManager createTaskManager() {
+        return new FileBackedTaskManager();
+    }
 
     @DisplayName("Проверка сохранения задач")
     @Test

@@ -1,33 +1,38 @@
-
-import manager.HistoryManager;
-import manager.Managers;
-import manager.TaskManager;
 import entities.Epic;
 import entities.Status;
 import entities.Task;
+import manager.HistoryManager;
+import manager.Managers;
+import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InMemoryHistoryManagerTest {
     private HistoryManager historyManager;
     private TaskManager taskManager;
+    private Epic epic;
+    private Task task1;
+    private Task task2;
 
     @BeforeEach
     void setUp() {
         taskManager = Managers.getDefault();
         historyManager = taskManager.getHistoryManager();
+        epic = new Epic("Эпик1", "Описание первого эпика");
+        task1 = new Task("Задача 1", "Описание 1 задачи", Status.DONE);
+        task2 = new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS);
+        taskManager.addEpic(epic);
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
     }
 
     @DisplayName("Проверка добавления в историю")
     @Test
     void testHistoryAdd() {
-        Epic epic = new Epic("Эпик1", "Описание первого эпика");
-        taskManager.addEpic(epic);
-        taskManager.addTask(new Task("Задача 1", "Описание 1 задачи", Status.DONE));
-        taskManager.addTask(new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS));
         taskManager.getEpic(0);
         taskManager.getTask(1);
         taskManager.getTask(2);
@@ -37,10 +42,6 @@ public class InMemoryHistoryManagerTest {
     @DisplayName("Проверка дубликатов")
     @Test
     void testHistoryNoDuplicat() {
-        Epic epic = new Epic("Эпик1", "Описание первого эпика");
-        taskManager.addEpic(epic);
-        taskManager.addTask(new Task("Задача 1", "Описание 1 задачи", Status.DONE));
-        taskManager.addTask(new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS));
         taskManager.getEpic(0);
         taskManager.getEpic(0);
         taskManager.getEpic(0);
@@ -59,12 +60,6 @@ public class InMemoryHistoryManagerTest {
     @DisplayName("Проверка порядка задач в истории")
     @Test
     void testHistoryOrder() {
-        Epic epic = new Epic("Эпик1", "Описание первого эпика");
-        taskManager.addEpic(epic);
-        Task task1 = new Task("Задача 1", "Описание 1 задачи", Status.DONE);
-        Task task2 = new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS);
-        taskManager.addTask(task1);
-        taskManager.addTask(task2);
         taskManager.getEpic(0);
         taskManager.getTask(1);
         taskManager.getTask(2);
@@ -77,12 +72,6 @@ public class InMemoryHistoryManagerTest {
     @DisplayName("Проверка на удаление задач")
     @Test
     void testHistoryDeleteTask() {
-        Epic epic = new Epic("Эпик1", "Описание первого эпика");
-        taskManager.addEpic(epic);
-        Task task1 = new Task("Задача 1", "Описание 1 задачи", Status.DONE);
-        Task task2 = new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS);
-        taskManager.addTask(task1);
-        taskManager.addTask(task2);
         taskManager.getEpic(0);
         taskManager.getTask(1);
         taskManager.getTask(2);
@@ -96,12 +85,6 @@ public class InMemoryHistoryManagerTest {
     @DisplayName("Проверка на удаления одного элемента")
     @Test
     void testHistoryDeleteTaskMiddle() {
-        Epic epic = new Epic("Эпик1", "Описание первого эпика");
-        taskManager.addEpic(epic);
-        Task task1 = new Task("Задача 1", "Описание 1 задачи", Status.DONE);
-        Task task2 = new Task("Задача 2", "Описание 2 задачи", Status.IN_PROGRESS);
-        taskManager.addTask(task1);
-        taskManager.addTask(task2);
         taskManager.getEpic(0);
         taskManager.getTask(1);
         taskManager.getTask(2);
