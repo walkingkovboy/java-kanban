@@ -6,6 +6,8 @@ import entities.SubTask;
 import entities.Task;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file = new File("tasks.csv");
@@ -23,6 +25,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         sb.append(task.getName()).append(",");
         sb.append(task.getStatus()).append(",");
         sb.append(task.getDescription()).append(",");
+        sb.append(task.getStartTime() != null ? task.getStartTime() : "null").append(",");
+        sb.append(task.getDuration() != null ? task.getDuration().toMinutes() : "null").append(",");
         if (task.getClass().equals(SubTask.class)) {
             sb.append(((SubTask) task).getEpic().getId());
         }
@@ -36,19 +40,43 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = parts[2];
         Status status = Status.valueOf(parts[3]);
         String description = parts[4];
+        String startTimeStr = parts[5];
+        String durationStr = parts[6];
         switch (type) {
             case "TASK":
                 Task task = new Task(name, description, status);
                 task.setId(id);
                 task.setStatus(status);
+                if (!"null".equals(startTimeStr)) {
+                    task.setStartTime(LocalDateTime.parse(startTimeStr));
+                }
+                if (!"null".equals(durationStr)) {
+                    task.setDuration(Duration.ofMinutes(Long.parseLong(durationStr)));
+                }
                 return task;
             case "EPIC":
                 Epic epic = new Epic(name, description);
                 epic.setId(id);
                 epic.setStatus(status);
+                if (!"null".equals(startTimeStr)) {
+                    epic.setStartTime(LocalDateTime.parse(startTimeStr));
+                }
+                if (!"null".equals(durationStr)) {
+                    epic.setDuration(Duration.ofMinutes(Long.parseLong(durationStr)));
+                }
                 return epic;
             case "SUBTASK":
-                return new SubTask(name, description, id, status, Integer.parseInt(parts[5]));
+                int epicId = Integer.parseInt(parts[7]);
+                SubTask subTask = new SubTask(name, description, id, status, epicId);
+                subTask.setId(id);
+                subTask.setStatus(status);
+                if (!"null".equals(startTimeStr)) {
+                    subTask.setStartTime(LocalDateTime.parse(startTimeStr));
+                }
+                if (!"null".equals(durationStr)) {
+                    subTask.setDuration(Duration.ofMinutes(Long.parseLong(durationStr)));
+                }
+                return subTask;
             default:
                 throw new ManagerLoadException("Неизвестный тип задачи при загрузке: " + type);
         }
@@ -129,7 +157,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write("id,type,name,status,description,startTime,duration,epic\n");
 
             for (Task task : tasks.values()) {
                 writer.write(toString(task) + "\n");
