@@ -87,7 +87,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addSubtask(subTask, 0);
         taskManager.addSubtask(subTask1, 0);
         taskManager.addSubtask(subTask2, 0);
-        SubTask subTask5 = new SubTask("Подзадача", "Новая подзадача", 2, Status.DONE, epic);
+        SubTask subTask5 = new SubTask("Подзадача", "Новая подзадача", 2, Status.DONE, epic.getId());
         taskManager.updateSubtask(subTask5);
         assertEquals(Status.DONE, taskManager.getEpic(0).getStatus());
     }

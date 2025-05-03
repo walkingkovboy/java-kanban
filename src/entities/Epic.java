@@ -1,12 +1,12 @@
 package entities;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class Epic extends Task {
-    private ArrayList<SubTask> subTasks;
+    private ArrayList<SubTask> subTasks = new ArrayList<>(); // без transient
+
     private LocalDateTime endTime;
 
     @Override
@@ -19,32 +19,8 @@ public class Epic extends Task {
     }
 
     @Override
-    public Duration getDuration() {
-        return subTasks == null ? Duration.ZERO :
-                subTasks.stream()
-                        .map(SubTask::getDuration)
-                        .filter(Objects::nonNull)
-                        .reduce(Duration.ZERO, Duration::plus);
-    }
-
-    @Override
-    public LocalDateTime getStartTime() {
-        return subTasks == null ? null :
-                subTasks.stream()
-                        .map(SubTask::getStartTime)
-                        .filter(Objects::nonNull)
-                        .min(LocalDateTime::compareTo)
-                        .orElse(null);
-    }
-
-    @Override
     public LocalDateTime getEndTime() {
-        return subTasks == null ? null :
-                subTasks.stream()
-                        .map(SubTask::getEndTime)
-                        .filter(Objects::nonNull)
-                        .max(LocalDateTime::compareTo)
-                        .orElse(null);
+        return this.endTime;
     }
 
     @Override
@@ -77,7 +53,6 @@ public class Epic extends Task {
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
-        this.subTasks = new ArrayList<>();
     }
 
     public Epic(String name, String description, int id) {
@@ -86,6 +61,9 @@ public class Epic extends Task {
 
 
     public void setSubTasks(SubTask subTask) {
+        if (subTasks == null) {
+            subTasks = new ArrayList<>();
+        }
         for (SubTask sbtask : subTasks) {
             if (sbtask.getId() == subTask.getId()) {
                 this.subTasks.set(this.subTasks.indexOf(sbtask), subTask);
@@ -96,7 +74,14 @@ public class Epic extends Task {
     }
 
     public ArrayList<SubTask> getSubTasks() {
+        if (subTasks == null) {
+            subTasks = new ArrayList<>();
+        }
         return subTasks;
+    }
+
+    public void setSubTasks(ArrayList<SubTask> subTasks) {
+        this.subTasks = subTasks;
     }
 
     public void removeAllSubtasks() {
@@ -119,5 +104,9 @@ public class Epic extends Task {
                 ", startTime=" + (getStartTime() != null ? getStartTime() : "null") +
                 ", endTime=" + (getEndTime() != null ? getEndTime() : "null") +
                 '}';
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 }

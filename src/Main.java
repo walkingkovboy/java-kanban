@@ -71,9 +71,9 @@ public class Main {
         System.out.println(tm.getSubtasks());
         System.out.println(tm.getTasks());
         System.out.println("Посмотрим что будет если все три задачи обвноить и сделать статус DONE");
-        SubTask subTask = new SubTask("Подзадача1", "Описание теперь другое", 2, Status.DONE, tm.getEpic(0));
-        SubTask subTask1 = new SubTask("Подзадача2", "Здесь тоже новое описание", 3, Status.DONE, tm.getEpic(0));
-        SubTask subTask2 = new SubTask("Подзадача 3 и новое ее название", "Почему бы и здесь так не сделать", 4, Status.DONE, tm.getEpic(0));
+        SubTask subTask = new SubTask("Подзадача1", "Описание теперь другое", 2, Status.DONE,0);
+        SubTask subTask1 = new SubTask("Подзадача2", "Здесь тоже новое описание", 3, Status.DONE,0);
+        SubTask subTask2 = new SubTask("Подзадача 3 и новое ее название", "Почему бы и здесь так не сделать", 4, Status.DONE,0);
         tm.updateSubtask(subTask);
         tm.updateSubtask(subTask1);
         tm.updateSubtask(subTask2);
