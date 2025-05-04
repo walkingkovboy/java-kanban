@@ -1,96 +1,87 @@
 package server;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import entities.Task;
 import manager.TaskManager;
 import manager.ValidationException;
+import server.validation.TaskValidator;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
-public class TasksHandler extends BaseHttpHandler implements HttpHandler {
+public class TasksHandler extends BaseHttpHandler {
     private final TaskManager manager;
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Duration.class, new DurationAdapter())
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    protected final Gson gson = createGson();
 
     public TasksHandler(TaskManager manager) {
         this.manager = manager;
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String query = exchange.getRequestURI().getQuery();
-        String method = exchange.getRequestMethod();
-
-        try {
-            if ("GET".equals(method)) {
-                if (query == null) {
-                    String response = gson.toJson(manager.getTasks());
-                    sendText(exchange, response, 200);
-                } else if (query.startsWith("id=")) {
-                    int id = Integer.parseInt(query.replaceFirst("id=", ""));
-                    Task task = manager.getTask(id);
-                    if (task != null) {
-                        String response = gson.toJson(task);
-                        sendText(exchange, response, 200);
-                    } else {
-                        sendNotFound(exchange, "Задача с id=" + id + " не найдена");
-                    }
-                } else {
-                    sendText(exchange, "Некорректный GET-запрос", 400);
-                }
-
-            } else if ("POST".equals(method)) {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                Task task = gson.fromJson(body, Task.class);
-                try {
-                    if (task.getId() == 0 || manager.getTask(task.getId()) == null) {
-                        manager.addTask(task);
-                        sendText(exchange, "Задача создана", 201);
-                    } else {
-                        sendText(exchange, "Нельзя создать задачу с существующим id", 400);
-                    }
-                } catch (ValidationException e) {
-                    sendText(exchange, "Ошибка на сервере: " + e.getMessage(), 406);
-                }
-
-            } else if ("PUT".equals(method)) {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                Task task = gson.fromJson(body, Task.class);
-                if (manager.getTask(task.getId()) != null) {
-                    manager.updateTask(task);
-                    sendText(exchange, "Задача обновлена", 200);
-                } else {
-                    sendNotFound(exchange, "Задача с id=" + task.getId() + " не найдена");
-                }
-            } else if ("DELETE".equals(method)) {
-                if (query != null && query.startsWith("id=")) {
-                    int id = Integer.parseInt(query.replaceFirst("id=", ""));
-                    Task task = manager.getTask(id);
-                    if (task != null) {
-                        manager.removeTask(id);
-                        sendText(exchange, "Задача удалена", 200);
-                    } else {
-                        sendNotFound(exchange, "Задача с id=" + id + " не найдена");
-                    }
-                } else {
-                    sendText(exchange, "Не указан id", 400);
-                }
-
+    protected void doGet(HttpExchange exchange, String path, String query) throws IOException {
+        if (query == null) {
+            sendText(exchange, gson.toJson(manager.getTasks()), HttpStatus.OK.getCode());
+        } else if (query.startsWith("id=")) {
+            int id = Integer.parseInt(query.substring(3));
+            Task task = manager.getTask(id);
+            if (task != null) {
+                sendText(exchange, gson.toJson(task), HttpStatus.OK.getCode());
             } else {
-                exchange.sendResponseHeaders(405, 0);
-                exchange.close();
+                sendNotFound(exchange, "Задача с id=" + id + " не найдена");
             }
+        } else {
+            sendText(exchange, "Некорректный GET-запрос", HttpStatus.BAD_REQUEST.getCode());
+        }
+    }
 
-        } catch (Exception e) {
-            sendText(exchange, "Ошибка на сервере: " + e.getMessage(), 500);
+    @Override
+    protected void doPost(HttpExchange exchange, String path, String body) throws IOException {
+        Task task = gson.fromJson(body, Task.class);
+        String err = TaskValidator.validate(task);
+        if (err != null) {
+            sendText(exchange, err, HttpStatus.NOT_ACCEPTABLE.getCode());
+            return;
+        }
+        try {
+            if (task.getId() == 0 || manager.getTask(task.getId()) == null) {
+                manager.addTask(task);
+                sendText(exchange, "Задача создана", HttpStatus.CREATED.getCode());
+            } else {
+                sendText(exchange, "Нельзя создать задачу с существующим id", HttpStatus.BAD_REQUEST.getCode());
+            }
+        } catch (ValidationException e) {
+            sendText(exchange, "Ошибка на сервере: " + e.getMessage(), HttpStatus.NOT_ACCEPTABLE.getCode());
+        }
+    }
+
+    @Override
+    protected void doPut(HttpExchange exchange, String path, String body) throws IOException {
+        Task task = gson.fromJson(body, Task.class);
+        String err = TaskValidator.validate(task);
+        if (err != null) {
+            sendText(exchange, err, HttpStatus.NOT_ACCEPTABLE.getCode());
+            return;
+        }
+        if (manager.getTask(task.getId()) != null) {
+            manager.updateTask(task);
+            sendText(exchange, "Задача обновлена", HttpStatus.OK.getCode());
+        } else {
+            sendNotFound(exchange, "Задача с id=" + task.getId() + " не найдена");
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpExchange exchange, String path, String query) throws IOException {
+        if (query != null && query.startsWith("id=")) {
+            int id = Integer.parseInt(query.substring(3));
+            if (manager.getTask(id) != null) {
+                manager.removeTask(id);
+                sendText(exchange, "Задача удалена", HttpStatus.OK.getCode());
+            } else {
+                sendNotFound(exchange, "Задача с id=" + id + " не найдена");
+            }
+        } else {
+            sendText(exchange, "Не указан id", HttpStatus.BAD_REQUEST.getCode());
         }
     }
 }

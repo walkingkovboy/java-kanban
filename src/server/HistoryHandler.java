@@ -1,41 +1,25 @@
 package server;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import manager.TaskManager;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
-public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
+public class HistoryHandler extends BaseHttpHandler {
     private final TaskManager manager;
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Duration.class, new DurationAdapter())
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    protected final Gson gson = createGson();
 
     public HistoryHandler(TaskManager manager) {
         this.manager = manager;
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String method = exchange.getRequestMethod();
-
-        if ("GET".equals(method)) {
-            try {
-                String response = gson.toJson(manager.getHistory());
-                sendText(exchange, response, 200);
-            } catch (Exception e) {
-                System.out.println("Ошибка сериализации: " + e.getMessage());
-                sendText(exchange, "Ошибка сериализации истории", 500);
-            }
-        } else {
-            exchange.sendResponseHeaders(405, 0);
-            exchange.close();
+    protected void doGet(HttpExchange exchange, String path, String query) throws IOException {
+        try {
+            sendText(exchange, gson.toJson(manager.getHistory()), HttpStatus.OK.getCode());
+        } catch (Exception e) {
+            sendText(exchange, "Ошибка сериализации истории: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.getCode());
         }
     }
 }

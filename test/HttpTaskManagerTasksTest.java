@@ -1,3 +1,5 @@
+package test;
+
 import com.google.gson.Gson;
 import entities.Epic;
 import entities.Status;
@@ -6,9 +8,12 @@ import entities.Task;
 import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import server.HttpTaskServer;
 
 import java.io.IOException;
@@ -19,317 +24,294 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HttpTaskManagerTasksTest {
+    private TaskManager manager;
+    private HttpTaskServer taskServer;
+    private Gson gson;
+    private HttpClient client;
 
-    TaskManager manager = new InMemoryTaskManager();
-    HttpTaskServer taskServer = new HttpTaskServer(manager);
-    Gson gson = HttpTaskServer.getGson();
-    protected Epic epic;
-    protected Task task;
-    protected Task task1;
-    protected Task task2;
-    protected SubTask subTask;
-    protected SubTask subTask1;
-    protected SubTask subTask2;
+    private enum Method {GET, POST, PUT, DELETE}
 
-    public HttpTaskManagerTasksTest() throws IOException {
+    @BeforeAll
+    void initClientAndGson() {
+        client = HttpClient.newHttpClient();
+        gson = HttpTaskServer.getGson();
     }
 
     @BeforeEach
-    public void setUp() {
-        manager.removeAllTasks();
-        manager.removeAllSubtask();
-        manager.removeAllEpics();
+    void setUp() throws IOException {
+        manager = new InMemoryTaskManager();
+        taskServer = new HttpTaskServer(manager);
         taskServer.start();
-        epic = new Epic("Эпик1", "Описание первого эпика");
-        task = new Task("Задача 1", "Описание задачи", Status.NEW);
-        subTask = new SubTask("Подзадача 1", "Описание", Status.DONE);
-        subTask1 = new SubTask("Подзадача2", "Описание 2 подзадачи", Status.IN_PROGRESS);
-        subTask2 = new SubTask("Подзадача3", "Описание 3 подзадачи", Status.DONE);
-        task1 = new Task("Пересекающаяся задача", "Описание задачи", Status.NEW);
-        task2 = new Task("Непересекающаяся задача", "Описание задачи", Status.NEW);
     }
 
     @AfterEach
-    public void shutDown() {
+    void tearDown() {
         taskServer.stop();
     }
 
-    @DisplayName("Проверка на добавление задачи")
-    @Test
-    public void testAddTask() throws IOException, InterruptedException {
-        String taskJson = gson.toJson(task);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskJson)).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Ожидаем получить статус 201");
-        List<Task> tasksFromManager = manager.getTasks();
-        assertEquals(1, tasksFromManager.size(), "Задача не была добавлена");
-        assertEquals("Задача 1", tasksFromManager.getFirst().getName(), "Неверное название");
-    }
-
-    @DisplayName("Проверка на получение задачи")
-    @Test
-    public void testGetTask() throws IOException, InterruptedException {
-        manager.addTask(task);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks?id=0");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус код 200");
-        Task taskFromResponse = gson.fromJson(response.body(), Task.class);
-        assertNotNull(taskFromResponse, "Задача не найдена");
-        assertEquals("Задача 1", taskFromResponse.getName(), "Неверное имя");
-    }
-
-    @DisplayName("Проверка удаления задачи")
-    @Test
-    public void testDeleteTask() throws IOException, InterruptedException {
-        manager.addTask(task);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks?id=0");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус код 200");
-        List<Task> tasksFromManager = manager.getTasks();
-        assertTrue(tasksFromManager.isEmpty(), "Задача не была удалена");
-    }
-
-    @DisplayName("Проверка обновления задачи")
-    @Test
-    public void testUpdateTask() throws IOException, InterruptedException {
-        manager.addTask(task);
-        task.setName("Обновленная задача");
-        String taskJson = gson.toJson(task);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).PUT(HttpRequest.BodyPublishers.ofString(taskJson)).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус 201 для обновления задачи");
-        List<Task> tasksFromManager = manager.getTasks();
-        assertEquals(1, tasksFromManager.size(), "Задача не была обновлена");
-        assertEquals("Обновленная задача", tasksFromManager.getFirst().getName(), "Неверное название задачи");
-    }
-
-    @DisplayName("Проверка пересечения времени задач")
-    @Test
-    public void testTaskTimeIntersection() throws IOException, InterruptedException {
-        task.setStartTime(LocalDateTime.parse("2025-05-01T10:00"));
-        task.setDuration(Duration.ofMinutes(60));
-        task1.setStartTime(LocalDateTime.parse("2025-05-01T10:30"));
-        task1.setDuration(Duration.ofMinutes(30));
-        String taskJson = gson.toJson(task);
-        String task1Json = gson.toJson(task1);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskJson)).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Ожидаем статус 201 после добавления задачи");
-        request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(task1Json)).build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(406, response.statusCode(), "Ожидаем статус 406 при пересечении задач");
-        assertTrue(response.body().contains("Задача пересекается по времени с другой задачей"), "Сообщение об ошибке не совпадает");
-    }
-
-    @DisplayName("Проверка получения истории")
-    @Test
-    public void testHistory() throws IOException, InterruptedException {
-        manager.addTask(task);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks?id=0");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус код 200");
-        Task taskFromResponse = gson.fromJson(response.body(), Task.class);
-        assertNotNull(taskFromResponse, "Задача не найдена");
-        url = URI.create("http://localhost:8080/history");
-        request = HttpRequest.newBuilder().uri(url).GET().build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус код 200");
-        Task[] history = gson.fromJson(response.body(), Task[].class);
-        assertTrue(history.length > 0, "История пуста");
-        assertEquals("Задача 1", history[0].getName(), "Задача не найдена в истории");
-    }
-
-    @DisplayName("Проверка получения отсортированных задач")
-    @Test
-    public void testGetPrioritizedTasks() throws IOException, InterruptedException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        task.setStartTime(LocalDateTime.parse("01.05.2025 09:00", formatter));
-        task.setDuration(Duration.ofMinutes(30));
-        task1.setStartTime(LocalDateTime.parse("01.05.2025 11:00", formatter));
-        task1.setDuration(Duration.ofMinutes(30));
-        manager.addTask(task);
-        manager.addTask(task1);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks/priority");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус код 200");
-        Task[] tasksFromResponse = gson.fromJson(response.body(), Task[].class);
-        assertEquals(task.getName(), tasksFromResponse[0].getName(), "Первая задача должна быть Task 1");
-        assertEquals(task1.getName(), tasksFromResponse[1].getName(), "Вторая задача должна быть Task 2");
-    }
-
-    @DisplayName("Проверка получения несуществующей задачи")
-    @Test
-    public void testGetNonExistentTask() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks?id=999");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(404, response.statusCode(), "Ожидаем статус код 404 для несуществующей задачи");
-        assertTrue(response.body().contains("Задача с id=999 не найдена"), "Сообщение об ошибке не совпадает");
-    }
-
-    @DisplayName("Проверка добавления эпика")
-    @Test
-    public void testAddEpic() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/epics");
-        String epicJson = gson.toJson(epic);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(epicJson))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Ожидаем статус 201 для создания эпика");
-        URI epicUrl = URI.create("http://localhost:8080/epics?id=0");
-        request = HttpRequest.newBuilder().uri(epicUrl).GET().build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус 200 для получения эпика");
-        Epic epicFromResponse = gson.fromJson(response.body(), Epic.class);
-        assertNotNull(epicFromResponse, "Эпик не найден");
-        assertNull(epicFromResponse.getStartTime(), "Start time должно быть null");
-        assertNull(epicFromResponse.getEndTime(), "End time должно быть null");
-        assertNull(epicFromResponse.getDuration(), "Duration должно быть null");
-        assertEquals("Эпик1", epicFromResponse.getName(), "Неверное имя эпика");
-        assertEquals("Описание первого эпика", epicFromResponse.getDescription(), "Неверное описание эпика");
-    }
-
-    @DisplayName("Проверка добавления подзадачи к несуществующему эпику")
-    @Test
-    public void testAddSubtaskToNonExistentEpic() throws IOException, InterruptedException {
-        subTask1.setEpicId(999);
-        String subTaskJson = gson.toJson(subTask1);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/subtasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(subTaskJson)).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(404, response.statusCode(), "Ожидаем статус 404 для подзадачи, которая не может быть привязана к несуществующему эпику");
-    }
-
-    @DisplayName("Проверка удаления эпика")
-    @Test
-    public void testDeleteEpic() throws IOException, InterruptedException {
-        manager.addEpic(epic);
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/epics?id=" + epic.getId());
-        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус 200 при удалении эпика");
-        assertTrue(manager.getEpics().isEmpty(), "Эпик не был удален");
-    }
-
-    @DisplayName("Проверка добавления эпика с подзадачами")
-    @Test
-    public void testAddEpicWithSubtasks() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/epics");
-        String epicJson = gson.toJson(epic);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(epicJson))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Ожидаем статус 201 для создания эпика");
-        int epicId = epic.getId();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        subTask1.setEpicId(epicId);
-        subTask2.setEpicId(epicId);
-        subTask1.setStartTime(LocalDateTime.parse("01.05.2025 09:00", formatter));
-        subTask1.setDuration(Duration.ofMinutes(60));
-        subTask2.setStartTime(LocalDateTime.parse("01.05.2025 11:00", formatter));
-        subTask2.setDuration(Duration.ofMinutes(60));
-        String subTaskJson1 = gson.toJson(subTask1);
-        String subTaskJson2 = gson.toJson(subTask2);
-        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks")).POST(HttpRequest.BodyPublishers.ofString(subTaskJson1)).build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Ожидаем статус 201 для добавления подзадачи 1");
-        request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks")).POST(HttpRequest.BodyPublishers.ofString(subTaskJson2)).build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Ожидаем статус 201 для добавления подзадачи 2");
-        URI epicUrl = URI.create("http://localhost:8080/epics?id=" + epicId);
-        request = HttpRequest.newBuilder().uri(epicUrl).GET().build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "Ожидаем статус 200 для получения эпика");
-        Epic epicFromResponse = gson.fromJson(response.body(), Epic.class);
-        assertNotNull(epicFromResponse, "Эпик не найден");
-        assertEquals(2, epicFromResponse.getSubTasks().size(), "Неверное количество подзадач у эпика");
-        assertEquals(epicId, subTask1.getEpicId(), "Подзадача 1 не привязана к эпику");
-        assertEquals(epicId, subTask2.getEpicId(), "Подзадача 2 не привязана к эпику");
-        assertNotNull(epicFromResponse.getStartTime(), "У эпика не установлен стартовый момент");
-        assertEquals(epicFromResponse.getStartTime(), subTask1.getStartTime(), "Время эпика совпадает со временем самой ранней подзадачи");
-        assertNotNull(epicFromResponse.getEndTime(), "У эпика не установлен конечный момент");
-        assertEquals(Status.IN_PROGRESS, epicFromResponse.getStatus(), "Статус эпика не обновился правильно");
-        assertEquals(120, epicFromResponse.getDuration().toMinutes(), "Неверная продолжительность эпика");
-        assertEquals("Эпик1", epicFromResponse.getName(), "Неверное имя эпика");
-        assertEquals("Описание первого эпика", epicFromResponse.getDescription(), "Неверное описание эпика");
-    }
-
-    @DisplayName("Проверка удаления всех подзадач из эпика")
-    @Test
-    public void testDeleteAllSubtasksFromEpic() throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest createEpic = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/epics"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic)))
-                .build();
-        assertEquals(201, client.send(createEpic, HttpResponse.BodyHandlers.ofString()).statusCode());
-        int epicId = epic.getId();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        subTask1.setEpicId(epicId);
-        subTask1.setStartTime(LocalDateTime.parse("01.05.2025 09:00", fmt));
-        subTask1.setDuration(Duration.ofMinutes(60));
-        subTask2.setEpicId(epicId);
-        subTask2.setStartTime(LocalDateTime.parse("01.05.2025 11:00", fmt));
-        subTask2.setDuration(Duration.ofMinutes(60));
-        HttpRequest add1 = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask1)))
-                .build();
-        HttpRequest add2 = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/subtasks"))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask2)))
-                .build();
-        assertEquals(201, client.send(add1, HttpResponse.BodyHandlers.ofString()).statusCode());
-        assertEquals(201, client.send(add2, HttpResponse.BodyHandlers.ofString()).statusCode());
-        HttpResponse<String> listResp = client.send(
-                HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks")).GET().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-        SubTask[] allSubs = gson.fromJson(listResp.body(), SubTask[].class);
-        for (SubTask st : allSubs) {
-            HttpRequest del = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:8080/subtasks?id=" + st.getId()))
-                    .DELETE()
-                    .build();
-            assertEquals(200, client.send(del, HttpResponse.BodyHandlers.ofString()).statusCode());
+    private HttpResponse<String> request(Method method, String uri, String body) throws IOException, InterruptedException {
+        HttpRequest.Builder builder = HttpRequest.newBuilder().uri(URI.create(uri));
+        switch (method) {
+            case GET:
+                builder.GET();
+                break;
+            case POST:
+                builder.POST(HttpRequest.BodyPublishers.ofString(body));
+                break;
+            case PUT:
+                builder.PUT(HttpRequest.BodyPublishers.ofString(body));
+                break;
+            case DELETE:
+                builder.DELETE();
+                break;
+            default:
+                throw new IllegalArgumentException("Не поддерживаемый метод: " + method);
         }
-        HttpResponse<String> epicResp = client.send(
-                HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/epics?id=" + epicId)).GET().build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
-        Epic e = gson.fromJson(epicResp.body(), Epic.class);
-        assertTrue(e.getSubTasks().isEmpty(), "Подзадач у эпика не должно быть");
-        assertNull(e.getStartTime(), "StartTime должно быть null");
-        assertNull(e.getEndTime(), "EndTime должно быть null");
-        assertEquals(Duration.ZERO, e.getDuration(), "После удаления всех подзадач Duration эпика = 0");
-        assertEquals(Status.NEW, e.getStatus(), "Статус эпика должен вернуться в NEW");
+        return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    @Nested
+    @DisplayName("Тесты операций с задачами")
+    class TaskTests {
+        private Task task;
+
+        @BeforeEach
+        void createTask() {
+            task = new Task("Задача 1", "Описание задачи", Status.NEW);
+        }
+
+        @Test
+        @DisplayName("Добавление задачи")
+        void testAddTask() throws Exception {
+            HttpResponse<String> resp = request(Method.POST, "http://localhost:8080/tasks", gson.toJson(task));
+            assertEquals(201, resp.statusCode(), "Ожидаем статус 201 при создании задачи");
+            assertEquals(1, manager.getTasks().size(), "Задача не добавилась в менеджер");
+        }
+
+        @Test
+        @DisplayName("Получение задачи по id")
+        void testGetTask() throws Exception {
+            manager.addTask(task);
+            HttpResponse<String> resp = request(Method.GET, "http://localhost:8080/tasks?id=0", null);
+            assertEquals(200, resp.statusCode(), "Ожидаем статус 200 при получении задачи");
+            Task actual = gson.fromJson(resp.body(), Task.class);
+            assertEquals("Задача 1", actual.getName(), "Неверное имя задачи");
+            assertEquals(Status.NEW, actual.getStatus(), "Неверный статус задачи");
+        }
+
+        @Test
+        @DisplayName("Обновление задачи")
+        void testUpdateTask() throws Exception {
+            manager.addTask(task);
+            task.setName("Ненавижу тесты");
+            HttpResponse<String> resp = request(Method.PUT, "http://localhost:8080/tasks", gson.toJson(task));
+            assertEquals(200, resp.statusCode(), "Ожидаем статус 200 при обновлении");
+            Task updated = manager.getTasks().getFirst();
+            assertEquals("Ненавижу тесты", updated.getName(), "Имя задачи не обновилось");
+            assertEquals(Status.NEW, updated.getStatus(), "Статус задачи изменился некорректно");
+        }
+
+        @Test
+        @DisplayName("Удаление задачи по id")
+        void testDeleteTask() throws Exception {
+            manager.addTask(task);
+            HttpResponse<String> resp = request(Method.DELETE, "http://localhost:8080/tasks?id=0", null);
+            assertEquals(200, resp.statusCode(), "Ожидаем статус 200 при удалении");
+            assertTrue(manager.getTasks().isEmpty(), "Задача не удалена");
+        }
+
+        @Test
+        @DisplayName("Удаление несуществующей задачи возвращает 404")
+        void testDeleteNonexistentTask() throws Exception {
+            HttpResponse<String> resp = request(Method.DELETE, "http://localhost:8080/tasks?id=999", null);
+            assertEquals(404, resp.statusCode(), "Ожидаем статус 404 для несуществующей задачи");
+        }
+
+        @Test
+        @DisplayName("Удаление без id возвращает 400")
+        void testDeleteWithoutId() throws Exception {
+            HttpResponse<String> resp = request(Method.DELETE, "http://localhost:8080/tasks", null);
+            assertEquals(400, resp.statusCode(), "Ожидаем статус 400 при отсутствии id");
+        }
+
+        @Test
+        @DisplayName("Некорректный JSON при POST возвращает 500")
+        void testInvalidJsonPost() throws Exception {
+            HttpResponse<String> resp = request(Method.POST, "http://localhost:8080/tasks", "{Тут должно быть тело но его нет}");
+            assertEquals(500, resp.statusCode(), "Ожидаем статус 500");
+        }
+
+        @Test
+        @DisplayName("Некорректный JSON при PUT возвращает 500")
+        void testInvalidJsonPut() throws Exception {
+            HttpResponse<String> resp = request(Method.PUT, "http://localhost:8080/tasks", "{Тут должно быть тело но его нет}");
+            assertEquals(500, resp.statusCode(), "Ожидаем статус 500");
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты пересечения времени задач")
+    class TaskIntersectionTests {
+        private Task task1, task2;
+
+        @BeforeEach
+        void initTasks() {
+            task1 = new Task("Задача 1", "Вынести мусор", Status.NEW);
+            task2 = new Task("Задача 2", "Помыть посуду", Status.NEW);
+        }
+
+        @Test
+        @DisplayName("Пересечение по времени возвращает 406")
+        void testTimeIntersection() throws Exception {
+            task1.setStartTime(LocalDateTime.parse("2025-05-01T10:00"));
+            task1.setDuration(Duration.ofMinutes(60));
+            task2.setStartTime(LocalDateTime.parse("2025-05-01T10:30"));
+            task2.setDuration(Duration.ofMinutes(30));
+            assertEquals(201, request(Method.POST, "http://localhost:8080/tasks", gson.toJson(task1)).statusCode());
+            HttpResponse<String> resp = request(Method.POST, "http://localhost:8080/tasks", gson.toJson(task2));
+            assertEquals(406, resp.statusCode(), "Ожидаем статус 406 при пересечении задач");
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты истории запросов")
+    class HistoryTests {
+        @Test
+        @DisplayName("Запись истории GET-запросов")
+        void testHistory() throws Exception {
+            Task task1 = new Task("Задача 1", "Первый", Status.NEW);
+            Task task2 = new Task("Задача 2", "Второй", Status.NEW);
+            manager.addTask(task1);
+            manager.addTask(task2);
+            request(Method.GET, "http://localhost:8080/tasks?id=0", null);
+            request(Method.GET, "http://localhost:8080/tasks?id=1", null);
+            HttpResponse<String> resp = request(Method.GET, "http://localhost:8080/history", null);
+            assertEquals(200, resp.statusCode(), "Ожидаем 200 при запросе истории");
+            Task[] hist = gson.fromJson(resp.body(), Task[].class);
+            assertEquals(2, hist.length, "Ожидаем 2 записи в истории");
+            assertEquals("Задача 1", hist[0].getName(), "Первая запись должна быть 'Задача 1'");
+            assertEquals("Задача 2", hist[1].getName(), "Вторая запись должна быть 'Задача 2'");
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты приоритетных задач")
+    class PriorityTests {
+        @Test
+        @DisplayName("Получение отсортированных задач")
+        void testGetPrioritizedTasks() throws Exception {
+            Task a = new Task("A", "d", Status.NEW);
+            Task b = new Task("B", "d", Status.NEW);
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+            a.setStartTime(LocalDateTime.parse("01.05.2025 09:00", fmt));
+            a.setDuration(Duration.ofMinutes(30));
+            b.setStartTime(LocalDateTime.parse("01.05.2025 11:00", fmt));
+            b.setDuration(Duration.ofMinutes(30));
+            manager.addTask(a);
+            manager.addTask(b);
+            HttpResponse<String> resp = request(Method.GET, "http://localhost:8080/prioritized", null);
+            assertEquals(200, resp.statusCode());
+            Task[] arr = gson.fromJson(resp.body(), Task[].class);
+            assertEquals("A", arr[0].getName());
+            assertEquals("B", arr[1].getName());
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты Epic и SubTask")
+    class EpicTests {
+        private Epic epic;
+        private SubTask sub;
+
+        @BeforeEach
+        void initEntities() {
+            epic = new Epic("Эпик1", "Опиcание");
+            sub = new SubTask("Подзадача1", "Описание", Status.NEW);
+        }
+
+        @Test
+        @DisplayName("Добавление эпика")
+        void testAddEpic() throws Exception {
+            HttpResponse<String> resp = request(Method.POST, "http://localhost:8080/epics", gson.toJson(epic));
+            assertEquals(201, resp.statusCode());
+            Epic got = gson.fromJson(request(Method.GET, "http://localhost:8080/epics?id=0", null).body(), Epic.class);
+            assertEquals("Эпик1", got.getName());
+        }
+
+        @Test
+        @DisplayName("Добавление подзадачи к несуществующему эпику")
+        void testAddSubToNonexistentEpic() throws Exception {
+            sub.setEpicId(999);
+            HttpResponse<String> resp = request(Method.POST, "http://localhost:8080/subtasks", gson.toJson(sub));
+            assertEquals(404, resp.statusCode());
+        }
+
+        @Test
+        @DisplayName("Ошибка при добавлении подзадачи с некорректными полями")
+        void testInvalidSubtaskData() throws Exception {
+            request(Method.POST, "http://localhost:8080/epics", gson.toJson(epic));
+            SubTask brokenSub = new SubTask(null, null, null);
+            brokenSub.setEpicId(0);
+            HttpResponse<String> resp = request(Method.POST, "http://localhost:8080/subtasks", gson.toJson(brokenSub));
+            assertEquals(406, resp.statusCode(), "Ожидаем статус 406 при валидационной ошибке");
+        }
+
+        @Test
+        @DisplayName("Удаление эпика")
+        void testDeleteEpic() throws Exception {
+            manager.addEpic(epic);
+            HttpResponse<String> resp = request(Method.DELETE, "http://localhost:8080/epics?id=0", null);
+            assertEquals(200, resp.statusCode());
+            assertTrue(manager.getEpics().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Добавление эпика с подзадачами и проверка полей")
+        void testAddEpicWithSubtasks() throws Exception {
+            request(Method.POST, "http://localhost:8080/epics", gson.toJson(epic));
+            sub.setEpicId(0);
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+            sub.setStartTime(LocalDateTime.parse("01.05.2025 09:00", fmt));
+            sub.setDuration(Duration.ofMinutes(60));
+            request(Method.POST, "http://localhost:8080/subtasks", gson.toJson(sub));
+            HttpResponse<String> resp = request(Method.GET, "http://localhost:8080/epics?id=0", null);
+            Epic got = gson.fromJson(resp.body(), Epic.class);
+            assertEquals(1, got.getSubTasks().size(), "У эпика должна быть одна подзадача");
+            assertNotNull(got.getStartTime(), "У эпика должен быть установлен startTime");
+            assertNotNull(got.getEndTime(), "У эпика должен быть установлен endTime");
+            assertEquals(Duration.ofMinutes(60), got.getDuration(), "Продолжительность эпика должна быть 60 минут");
+            assertEquals(Status.NEW, got.getStatus(), "Статус эпика должен быть NEW");
+        }
+
+        @Test
+        @DisplayName("Удаление всех подзадач из эпика")
+        void testDeleteAllSubtasks() throws Exception {
+            request(Method.POST, "http://localhost:8080/epics", gson.toJson(epic));
+            sub.setEpicId(0);
+            sub.setStartTime(LocalDateTime.now());
+            sub.setDuration(Duration.ofMinutes(10));
+            request(Method.POST, "http://localhost:8080/subtasks", gson.toJson(sub));
+            SubTask[] subs = gson.fromJson(
+                    request(Method.GET, "http://localhost:8080/subtasks", null).body(),
+                    SubTask[].class
+            );
+            for (SubTask s : subs) {
+                request(Method.DELETE, "http://localhost:8080/subtasks?id=" + s.getId(), null);
+            }
+            Epic got = gson.fromJson(
+                    request(Method.GET, "http://localhost:8080/epics?id=0", null).body(),
+                    Epic.class
+            );
+            assertTrue(got.getSubTasks().isEmpty(), "У эпика не должно остаться подзадач");
+            assertNull(got.getStartTime(), "startTime должен быть null");
+            assertNull(got.getEndTime(), "endTime должен быть null");
+            assertEquals(Duration.ZERO, got.getDuration(), "Продолжительность должна быть 0");
+            assertEquals(Status.NEW, got.getStatus(), "Статус эпика должен быть NEW");
+        }
     }
 }

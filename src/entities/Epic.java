@@ -2,21 +2,12 @@ package entities;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 
 public class Epic extends Task {
-    private ArrayList<SubTask> subTasks = new ArrayList<>(); // без transient
-
+    private List<SubTask> subTasks = new ArrayList<>();
     private LocalDateTime endTime;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Epic epic = (Epic) o;
-        return Objects.equals(subTasks, epic.subTasks);
-    }
 
     @Override
     public LocalDateTime getEndTime() {
@@ -46,11 +37,6 @@ public class Epic extends Task {
         return super.getStatus();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), subTasks);
-    }
-
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
     }
@@ -61,27 +47,22 @@ public class Epic extends Task {
 
 
     public void setSubTasks(SubTask subTask) {
-        if (subTasks == null) {
-            subTasks = new ArrayList<>();
-        }
-        for (SubTask sbtask : subTasks) {
-            if (sbtask.getId() == subTask.getId()) {
-                this.subTasks.set(this.subTasks.indexOf(sbtask), subTask);
+        for (int i = 0; i < subTasks.size(); i++) {
+            if (subTasks.get(i).getId() == subTask.getId()) {
+                subTasks.set(i, subTask);
                 return;
             }
         }
         subTasks.add(subTask);
     }
 
-    public ArrayList<SubTask> getSubTasks() {
-        if (subTasks == null) {
-            subTasks = new ArrayList<>();
-        }
+
+    public List<SubTask> getSubTasks() {
         return subTasks;
     }
 
-    public void setSubTasks(ArrayList<SubTask> subTasks) {
-        this.subTasks = subTasks;
+    public void setSubTasks(List<SubTask> subTasks) {
+        this.subTasks = new ArrayList<>(subTasks);
     }
 
     public void removeAllSubtasks() {
