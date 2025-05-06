@@ -54,24 +54,25 @@ public abstract class BaseHttpHandler implements HttpHandler {
         }
     }
 
-    protected void doGet(HttpExchange exchange, String path, String query) throws IOException {
+    private void sendMethodNotAllowed(HttpExchange exchange) throws IOException {
         exchange.sendResponseHeaders(HttpStatus.METHOD_NOT_ALLOWED.getCode(), 0);
         exchange.close();
+    }
+
+    protected void doGet(HttpExchange exchange, String path, String query) throws IOException {
+        sendMethodNotAllowed(exchange);
     }
 
     protected void doPost(HttpExchange exchange, String path, String body) throws IOException {
-        exchange.sendResponseHeaders(HttpStatus.METHOD_NOT_ALLOWED.getCode(), 0);
-        exchange.close();
+        sendMethodNotAllowed(exchange);
     }
 
     protected void doPut(HttpExchange exchange, String path, String body) throws IOException {
-        exchange.sendResponseHeaders(HttpStatus.METHOD_NOT_ALLOWED.getCode(), 0);
-        exchange.close();
+        sendMethodNotAllowed(exchange);
     }
 
     protected void doDelete(HttpExchange exchange, String path, String query) throws IOException {
-        exchange.sendResponseHeaders(HttpStatus.METHOD_NOT_ALLOWED.getCode(), 0);
-        exchange.close();
+        sendMethodNotAllowed(exchange);
     }
 
     protected void sendText(HttpExchange exchange, String text, int code) throws IOException {
