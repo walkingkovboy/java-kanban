@@ -5,7 +5,12 @@ import entities.Status;
 import entities.SubTask;
 import entities.Task;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -28,7 +33,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         sb.append(task.getStartTime() != null ? task.getStartTime() : "null").append(",");
         sb.append(task.getDuration() != null ? task.getDuration().toMinutes() : "null").append(",");
         if (task.getClass().equals(SubTask.class)) {
-            sb.append(((SubTask) task).getEpic().getId());
+            sb.append(((SubTask) task).getEpicId());
         }
         return sb.toString();
     }

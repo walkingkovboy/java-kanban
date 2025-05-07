@@ -32,6 +32,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             history.add(current.getTask());
             current = current.getNext();
         }
+        System.out.println(">>> History: " + history);
         return history;
     }
 
